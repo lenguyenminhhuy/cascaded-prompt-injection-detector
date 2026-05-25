@@ -1,0 +1,25 @@
+# Data and results outputs (too large for git) — anchored to repo root
+/data/
+/results/
+
+# Environment
+.env
+*.egg-info/
+__pycache__/
+*.pyc
+
+# W&B local
+wandb/
+
+# Model weights
+*.bin
+*.safetensors
+*.pt
+
+# Notebooks
+.ipynb_checkpoints/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store

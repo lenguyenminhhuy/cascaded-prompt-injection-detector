@@ -1,0 +1,98 @@
+# All 14 datasets, their sources, role, channel, and any preprocessing notes.
+# role: train | val | cal | eval
+# channel: document_embedded | tool_output | direct | app_structured | conversational
+
+datasets:
+  bipia:
+    source: github
+    url: https://github.com/microsoft/BIPIA
+    channel: document_embedded
+    role: train
+    notes: "Document-embedded injections; filter by attack success."
+
+  injecagent:
+    source: github
+    url: https://github.com/uiuc-kang-lab/InjecAgent
+    channel: tool_output
+    role: train
+    notes: "Tool-output injections from agent traces."
+
+  hackaprompt:
+    source: huggingface
+    hf_id: hackaprompt/hackaprompt-dataset
+    channel: direct
+    role: train
+    notes: "Deduplicate; success-only filter."
+
+  open_prompt_injection:
+    source: github
+    url: https://github.com/liu00222/Open-Prompt-Injection
+    channel: direct
+    role: train
+    notes: "Requires script-based attack generation."
+
+  wildguard:
+    source: huggingface
+    hf_id: allenai/wildguardmix
+    split: test
+    channel: direct
+    role: eval
+
+  struq:
+    source: github
+    url: https://github.com/Sizhe-Chen/StruQ
+    channel: app_structured
+    role: train
+    notes: "Synthetic generation across 4 strategies with link-phrase separation."
+
+  ultrachat:
+    source: huggingface
+    hf_id: HuggingFaceH4/ultrachat_200k
+    channel: conversational
+    role: train
+    notes: "Balanced subsample."
+
+  ifeval:
+    source: huggingface
+    hf_id: google/IFEval
+    channel: conversational
+    role: train
+
+  lmsys_chat:
+    source: huggingface
+    hf_id: lmsys/lmsys-chat-1m
+    channel: conversational
+    role: eval
+    notes: "Balanced subsample."
+
+  alpaca:
+    source: huggingface
+    hf_id: tatsu-lab/alpaca
+    channel: app_structured
+    role: train
+
+  notinject:
+    source: huggingface
+    hf_id: yueliu1999/NotInject
+    channel: direct
+    role: train
+    notes: "Trigger-word debiasing benign set."
+
+  dolly:
+    source: huggingface
+    hf_id: databricks/databricks-dolly-15k
+    channel: app_structured
+    role: eval
+
+  natural_instructions:
+    source: huggingface
+    hf_id: Muennighoff/natural-instructions
+    channel: app_structured
+    role: eval
+
+  spp:
+    source: huggingface
+    hf_id: MozzaFC/SPP  # fallback may be required
+    channel: app_structured
+    role: eval
+    notes: "Fallback dataset if primary unavailable."

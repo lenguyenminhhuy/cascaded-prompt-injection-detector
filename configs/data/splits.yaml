@@ -1,0 +1,32 @@
+# Split composition per Table 2.
+# Fractions of the combined training pool: train(80%) / val(10%) / cal(10%).
+# Evaluation set is held-out (separate sources).
+
+seed: 42
+
+train_pool:
+  ratios:
+    train: 0.80
+    val: 0.10
+    cal: 0.10
+  sources:
+    - bipia
+    - injecagent
+    - hackaprompt
+    - open_prompt_injection
+    - struq
+    - ultrachat
+    - ifeval
+    - alpaca
+    - notinject
+
+eval:
+  sources:
+    - wildguard
+    - lmsys_chat
+    - dolly
+    - natural_instructions
+    - spp
+
+balance:
+  target_injection_ratio: 0.5  # roughly balanced positives/negatives in train/val/cal
