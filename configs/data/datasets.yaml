@@ -27,9 +27,9 @@ datasets:
   open_prompt_injection:
     source: github
     url: https://github.com/liu00222/Open-Prompt-Injection
-    channel: direct
-    role: train
-    notes: "Requires script-based attack generation."
+    channel: document_embedded
+    role: eval
+    notes: "Evaluation dataset for document-embedded injection channel (Table 2)."
 
   wildguard:
     source: huggingface

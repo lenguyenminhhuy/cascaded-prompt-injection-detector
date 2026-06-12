@@ -13,7 +13,6 @@ train_pool:
     - bipia
     - injecagent
     - hackaprompt
-    - open_prompt_injection
     - struq
     - ultrachat
     - ifeval
@@ -22,6 +21,8 @@ train_pool:
 
 eval:
   sources:
+    - open_prompt_injection   # document-embedded injection eval (Table 2)
+    - injecagent              # tool-output injection eval (held-out split)
     - wildguard
     - lmsys_chat
     - dolly
