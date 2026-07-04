@@ -1,98 +1,78 @@
-# All 14 datasets, their sources, role, channel, and any preprocessing notes.
-# role: train | val | cal | eval
-# channel: document_embedded | tool_output | direct | app_structured | conversational
+# cascade-pid v1 source registry (SCHEMA.md contract).
+#
+# Core domain is Text-to-SQL / data-assistant. Every positive is mapped to a
+# (channel, payload_family) and rendered channel-faithfully in Chunk 3.
+# Licenses verified in Chunk 2 (see data/raw/LICENSES.md) — all MIT / permissive.
+#
+# channel:        direct | document_embedded | tool_output
+# payload_family: instruction_override | exfiltration | tool_misuse |
+#                 system_prompt_extraction | rbac_bypass
 
-datasets:
-  bipia:
-    source: github
-    url: https://github.com/microsoft/BIPIA
-    channel: document_embedded
-    role: train
-    notes: "Document-embedded injections; filter by attack success."
+sources:
+  agentdojo:
+    kind: github
+    license: MIT
+    local: data/raw/agentdojo
+    primary_channel: tool_output
+    families: [tool_misuse, exfiltration, instruction_override]
+    notes: >
+      Injection tasks + injection vectors across workspace/banking/travel/slack
+      suites. Payloads arrive in tool returns the agent itself called.
 
   injecagent:
-    source: github
-    url: https://github.com/uiuc-kang-lab/InjecAgent
-    channel: tool_output
-    role: train
-    notes: "Tool-output injections from agent traces."
+    kind: github
+    license: MIT
+    local: ../datasets/InjecAgent/data
+    primary_channel: tool_output
+    families: [tool_misuse, exfiltration]
+    notes: >
+      Direct-Harm (dh) -> tool_misuse, Data-Stealing (ds) -> exfiltration.
+      Payload lives in the 'Attacker Instruction' embedded in tool output.
+
+  bipia:
+    kind: github
+    license: MIT
+    local: data/raw/BIPIA
+    primary_channel: document_embedded
+    families: [instruction_override, exfiltration, tool_misuse]
+    notes: >
+      Attack strings injected into email/table/qa/code/web contexts. Text-attack
+      categories map to instruction_override/exfiltration; code-attack categories
+      map to tool_misuse.
 
   hackaprompt:
-    source: huggingface
+    kind: huggingface
     hf_id: hackaprompt/hackaprompt-dataset
-    channel: direct
-    role: train
-    notes: "Deduplicate; success-only filter."
+    license: MIT
+    primary_channel: direct
+    families: [instruction_override, system_prompt_extraction]
+    notes: "Direct user-turn injections. Dedup + success-only filter."
 
-  open_prompt_injection:
-    source: github
-    url: https://github.com/liu00222/Open-Prompt-Injection
-    channel: document_embedded
-    role: eval
-    notes: "Evaluation dataset for document-embedded injection channel (Table 2)."
+  tensortrust:
+    kind: huggingface
+    hf_id: qxcv/tensor-trust
+    license: MIT
+    primary_channel: direct
+    families: [system_prompt_extraction, instruction_override]
+    notes: "Prompt-extraction & hijacking attacks from the TensorTrust game."
 
-  wildguard:
-    source: huggingface
-    hf_id: allenai/wildguardmix
-    split: test
-    channel: direct
-    role: eval
+  synthetic:
+    kind: generator
+    license: authored
+    primary_channel: any
+    families: [rbac_bypass, instruction_override, exfiltration, tool_misuse, system_prompt_extraction]
+    notes: >
+      Fills thin (channel x family) cells, esp. rbac_bypass (SQL-specific) and
+      ambiguous calibration material. Deterministic, seeded templates.
 
-  struq:
-    source: github
-    url: https://github.com/Sizhe-Chen/StruQ
-    channel: app_structured
-    role: train
-    notes: "Synthetic generation across 4 strategies with link-phrase separation."
+  authored:
+    kind: generator
+    license: authored
+    primary_channel: any
+    families: []
+    notes: >
+      Hand-curated hard benign negatives (adversarial-looking-but-benign) and
+      the cross-domain (browsing/calendar/email) held-out test slice.
 
-  ultrachat:
-    source: huggingface
-    hf_id: HuggingFaceH4/ultrachat_200k
-    channel: conversational
-    role: train
-    notes: "Balanced subsample."
-
-  ifeval:
-    source: huggingface
-    hf_id: google/IFEval
-    channel: conversational
-    role: train
-
-  lmsys_chat:
-    source: huggingface
-    hf_id: lmsys/lmsys-chat-1m
-    channel: conversational
-    role: eval
-    notes: "Balanced subsample."
-
-  alpaca:
-    source: huggingface
-    hf_id: tatsu-lab/alpaca
-    channel: app_structured
-    role: train
-
-  notinject:
-    source: huggingface
-    hf_id: yueliu1999/NotInject
-    channel: direct
-    role: train
-    notes: "Trigger-word debiasing benign set."
-
-  dolly:
-    source: huggingface
-    hf_id: databricks/databricks-dolly-15k
-    channel: app_structured
-    role: eval
-
-  natural_instructions:
-    source: huggingface
-    hf_id: Muennighoff/natural-instructions
-    channel: app_structured
-    role: eval
-
-  spp:
-    source: huggingface
-    hf_id: MozzaFC/SPP  # fallback may be required
-    channel: app_structured
-    role: eval
-    notes: "Fallback dataset if primary unavailable."
+# Benign negative sources are generated channel-matched in Chunk 4; we do not
+# pull external benign corpora for v1 to keep the SQL domain controlled.

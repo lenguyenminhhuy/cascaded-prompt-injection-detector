@@ -37,7 +37,9 @@ See [cascade-pid-structure.md](../cascade-pid-structure.md) for the full design.
 
 | # | Script | Purpose |
 |---|---|---|
-| 1 | `build_splits.py` | Assemble train/val/cal/eval splits (Table 2) |
+| 0 | `download_data.sh` + `download_hf.py` | Fetch source benchmarks (BIPIA, AgentDojo, InjecAgent, HackAPrompt, TensorTrust) |
+| 1 | `build_dataset.py` | Build channel-stratified pool + 5 splits (train/cal/test_in_dist/test_cross_channel/test_cross_domain) per `SCHEMA.md` |
+| 1b | `audit_dataset.py` / `freeze_dataset.py` | Quality audit (balance, leakage, anti-cheating) then freeze v1 + W&B artifact. See `datasheet.md` |
 | 2 | `train_stage1.py` | QLoRA fine-tune Stage 1 candidates |
 | 3 | `calibrate.py` | Temperature scaling + threshold search |
 | 4 | `run_baselines.py` | PromptGuard 2 + LlamaGuard 4 standalone |

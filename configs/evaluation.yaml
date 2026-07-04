@@ -12,9 +12,14 @@ metrics:
   - residual_fn_rate
   - ece
 
+# Channels for per-channel reporting (SCHEMA.md §3).
 channels:
+  - direct
   - document_embedded
   - tool_output
-  - direct
-  - app_structured
-  - conversational
+
+# Splits used for final reporting.
+report_splits:
+  - test_in_dist          # in-distribution detection at deployment base rate
+  - test_cross_channel    # cross-channel generalization
+  - test_cross_domain     # cross-domain transfer (never trained)

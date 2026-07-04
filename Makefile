@@ -1,4 +1,4 @@
-.PHONY: setup data train train-all calibrate baselines cascade sweep evaluate all clean
+.PHONY: setup data audit freeze train train-all calibrate baselines cascade sweep evaluate all clean
 
 setup:
 	pip install -e .
@@ -7,7 +7,16 @@ setup:
 
 data:
 	bash scripts/download_data.sh
-	python scripts/build_splits.py
+	python scripts/download_hf.py
+	python scripts/build_dataset.py
+	python scripts/audit_dataset.py
+	python scripts/freeze_dataset.py --version v1
+
+audit:
+	python scripts/audit_dataset.py
+
+freeze:
+	python scripts/freeze_dataset.py --version v1
 
 train:
 	python scripts/train_stage1.py --config configs/models/$(MODEL).yaml
@@ -35,4 +44,5 @@ evaluate:
 all: data train-all calibrate baselines cascade sweep evaluate
 
 clean:
-	rm -rf data/processed data/splits results/
+	rm -rf data/processed data/splits data/audit data/pool.jsonl \
+	  data/raw_positives.jsonl data/coverage_report.json data/VERSION.json results/

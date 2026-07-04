@@ -1,33 +1,46 @@
-# Split composition per Table 2.
-# Fractions of the combined training pool: train(80%) / val(10%) / cal(10%).
-# Evaluation set is held-out (separate sources).
+# cascade-pid v1 split contract (SCHEMA.md §1, PLAN.md Chunk 6).
+#
+# Five splits, each answering a distinct question:
+#   train               - in-channel, in-domain detection training (balanced)
+#   cal                 - calibration; weighted toward ambiguous/hard near-threshold
+#   test_in_dist        - in-channel, in-domain; realistic deployment imbalance
+#   test_cross_channel  - payload_family x channel cells held out entirely
+#   test_cross_domain   - non-sql domains (browsing/calendar/email); never trained
 
 seed: 42
 
-train_pool:
+# --- Cross-channel holdout (Chunk 6.2) ----------------------------------------
+# Reserve these (payload_family, channel) cells ENTIRELY for the generalization
+# test. The family is still seen in OTHER channels during training, so the test
+# measures channel transfer, not family transfer.
+cross_channel_holdout_cells:
+  - [exfiltration, document_embedded]
+  - [tool_misuse, direct]
+  - [system_prompt_extraction, tool_output]
+
+# --- Cross-domain holdout (Chunk 6) -------------------------------------------
+# Any example whose domain != sql is test_cross_domain, full stop.
+cross_domain_domains: [browsing, calendar, email]
+
+# --- In-distribution split ratios (sql domain, non-holdout cells) -------------
+in_dist:
   ratios:
-    train: 0.80
-    val: 0.10
-    cal: 0.10
-  sources:
-    - bipia
-    - injecagent
-    - hackaprompt
-    - struq
-    - ultrachat
-    - ifeval
-    - alpaca
-    - notinject
+    train: 0.70
+    cal: 0.15
+    test_in_dist: 0.15
+  # Train is balanced; test reflects deployment base rate (few attacks).
+  train_injection_ratio: 0.50
+  test_in_dist_injection_ratio: 0.15
 
-eval:
-  sources:
-    - open_prompt_injection   # document-embedded injection eval (Table 2)
-    - injecagent              # tool-output injection eval (held-out split)
-    - wildguard
-    - lmsys_chat
-    - dolly
-    - natural_instructions
-    - spp
+# --- Calibration weighting (Chunk 6.3) ----------------------------------------
+calibration:
+  # Oversample ambiguous/hard difficulty into cal relative to their pool share.
+  difficulty_weights:
+    ambiguous: 3.0
+    hard: 2.0
+    easy: 1.0
 
-balance:
-  target_injection_ratio: 0.5  # roughly balanced positives/negatives in train/val/cal
+# --- Multi-intent handling (SCHEMA.md §2) -------------------------------------
+# Items tagged notes:multi-intent are excluded from cross_channel holdout to
+# keep the channel-transfer signal clean.
+exclude_multi_intent_from_cross_channel: true

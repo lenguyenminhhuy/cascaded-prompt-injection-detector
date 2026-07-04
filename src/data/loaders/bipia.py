@@ -1,86 +1,77 @@
+"""BIPIA -> document_embedded positives (raw payloads).
+
+BIPIA stores attack strings grouped by category in
+``benchmark/{text,code}_attack_{train,test}.json`` as {category: [strings]}.
+We take the unique attack strings and map each category to a payload_family.
+Channel-faithful document wrapping happens in Chunk 3.
+"""
+
+from __future__ import annotations
+
 import json
-import logging
-import subprocess
 from collections.abc import Iterator
 from pathlib import Path
 
 from src.data.loaders.base import DatasetLoader
-from src.data.schema import Sample
-
-logger = logging.getLogger(__name__)
-
-LABEL = "injection"
-CHANNEL = "document_embedded"
+from src.data.schema import Sample, make_id
+from src.data.taxonomy import (
+    BIPIA_CODE_EXFIL,
+    BIPIA_CODE_FAMILY_DEFAULT,
+    BIPIA_HARD_TEXT,
+    BIPIA_TEXT_FAMILY,
+    difficulty_for,
+)
 
 
 class BipiaLoader(DatasetLoader):
     name = "bipia"
-    REPO_URL = "https://github.com/microsoft/BIPIA"
 
-    def __init__(self, raw_dir: str = "data/raw", max_samples: int | None = None):
-        self.repo_dir = Path(raw_dir) / self.name
+    def __init__(self, local: str = "data/raw/BIPIA", max_samples: int | None = None):
+        self.root = Path(local) / "benchmark"
         self.max_samples = max_samples
 
-    def _ensure_clone(self) -> None:
-        if self.repo_dir.exists() and any(self.repo_dir.iterdir()):
-            return
-        self.repo_dir.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(
-            ["git", "clone", "--depth", "1", self.REPO_URL, str(self.repo_dir)],
-            check=True,
-            capture_output=True,
-        )
-
-    def _extract_text(self, row: dict) -> str:
-        for key in ("attack", "injected_prompt", "text"):
-            value = row.get(key, "")
-            if value and isinstance(value, str) and value.strip():
-                return value.strip()
-        return ""
-
-    def _parse(self) -> Iterator[Sample]:
-        jsonl_files = sorted(self.repo_dir.rglob("*.jsonl"))
-        if not jsonl_files:
-            logger.warning("BipiaLoader: no .jsonl files found under %s", self.repo_dir)
-            return
-
-        count = 0
-        for path in jsonl_files:
-            try:
-                with path.open("r", encoding="utf-8") as fh:
-                    for lineno, line in enumerate(fh, start=1):
-                        line = line.strip()
-                        if not line:
-                            continue
-                        try:
-                            row = json.loads(line)
-                        except json.JSONDecodeError:
-                            logger.warning(
-                                "BipiaLoader: JSON decode error in %s line %d — skipping",
-                                path,
-                                lineno,
-                            )
-                            continue
-
-                        text = self._extract_text(row)
-                        if not text:
-                            continue
-
-                        task = row.get("task_name", row.get("task", ""))
-                        yield Sample(
-                            input=text,
-                            label=LABEL,
-                            channel=CHANNEL,
-                            source=self.name,
-                            metadata={"attack_success": True, "task": task},
-                        )
-                        count += 1
-                        if self.max_samples is not None and count >= self.max_samples:
-                            return
-            except OSError as exc:
-                logger.warning("BipiaLoader: could not read %s — %s", path, exc)
-                continue
+    def _read(self, fname: str) -> dict[str, list[str]]:
+        p = self.root / fname
+        if not p.exists():
+            return {}
+        return json.load(p.open(encoding="utf-8"))
 
     def load(self) -> Iterator[Sample]:
-        self._ensure_clone()
-        yield from self._parse()
+        seen: set[str] = set()
+        n = 0
+        groups = [
+            ("text", self._read("text_attack_train.json")),
+            ("text", self._read("text_attack_test.json")),
+            ("code", self._read("code_attack_train.json")),
+            ("code", self._read("code_attack_test.json")),
+        ]
+        for kind, data in groups:
+            for category, payloads in data.items():
+                for payload in payloads:
+                    payload = (payload or "").strip()
+                    if not payload or payload in seen:
+                        continue
+                    seen.add(payload)
+                    if kind == "text":
+                        family = BIPIA_TEXT_FAMILY.get(category, "instruction_override")
+                        hard = category in BIPIA_HARD_TEXT
+                    else:
+                        family = ("exfiltration" if category in BIPIA_CODE_EXFIL
+                                  else BIPIA_CODE_FAMILY_DEFAULT)
+                        hard = True  # code attacks are inherently obfuscated/technical
+                    diff = "hard" if hard else difficulty_for(payload)
+                    yield Sample(
+                        id=make_id(self.name, family, n),
+                        rendered_input=payload,
+                        channel="document_embedded",
+                        label="injected",
+                        payload_family=family,
+                        domain="sql",
+                        source=self.name,
+                        difficulty=diff,
+                        structural_features=[],
+                        notes=f"bipia:{kind}:{category}",
+                    ).validate()
+                    n += 1
+                    if self.max_samples and n >= self.max_samples:
+                        return

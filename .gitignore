@@ -23,3 +23,7 @@ wandb/
 .vscode/
 .idea/
 .DS_Store
+
+# Agent tool state
+.omc/
+.serena/
