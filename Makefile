@@ -1,7 +1,7 @@
 .PHONY: setup data audit freeze train train-all calibrate baselines cascade sweep evaluate all clean
 
 setup:
-	pip install -e .
+	pip install -e ".[train]"
 	wandb login
 	huggingface-cli login
 
