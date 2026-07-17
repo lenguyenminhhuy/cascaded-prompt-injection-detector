@@ -112,7 +112,9 @@ def main() -> int:
                 s.validate()
             except Exception as e:  # noqa: BLE001
                 invalid += 1
-                print("INVALID:", e)
+                # cap the message: a validation error can embed raw row text,
+                # which must not be echoed into terminals/agent sessions
+                print(f"INVALID: id={s.id!r} {type(e).__name__}: {str(e)[:120]}")
     print(f"schema re-validation: {invalid} invalid")
 
     bal = balance_report(splits)
