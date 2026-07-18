@@ -17,6 +17,8 @@ import numpy as np
 # Re-export per_channel so callers can do `from evaluation.metrics import per_channel`
 from evaluation.per_channel import per_channel  # noqa: F401
 
+from evaluation.cost import detector_cost_block
+
 
 # ---------------------------------------------------------------------------
 # detection_rate_at_fpr
@@ -346,6 +348,7 @@ def evaluate_detector(
         "per_channel": per_channel_results,
         "fpr_benign_only": fpr_benign_only,
         "mean_latency_ms": mean_latency_ms,
+        "cost": detector_cost_block(mean_latency_ms, detector=detector_name),
         "run_mode": run_mode,
         "eval_manifest": eval_manifest,
     }
