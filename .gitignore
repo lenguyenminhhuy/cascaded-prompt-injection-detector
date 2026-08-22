@@ -32,3 +32,17 @@ wandb/
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Agent / tool state (not part of the experiment code)
+.agents/
+.beads/
+.claude/
+.codex/
+.pytest_cache/
+
+# Local experiment scratch and cloud-run mirrors
+scratchpad/
+results_kaggle/
+
+# Packaging artifacts for cloud runs
+*.zip
