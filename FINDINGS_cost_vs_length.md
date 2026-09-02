@@ -9,7 +9,8 @@ session, so no ratio pairs measurements taken at different times.
 never in the repository, only its JSON outputs)
 **Artifacts:** `results/analysis/latency_curve_full_{nf4,bf16}.json`,
 `results/analysis/cost_uniform_length_sweep.json`,
-`results/analysis/cost_lwfull_*.json`
+`results/analysis/cost_lwfull_*.json` (regenerated 2026-09-02 after the token-count fix in §4;
+each file now records its own inputs under `"inputs"`)
 
 ## 1. The question
 
@@ -34,7 +35,7 @@ lands its target-64 row exactly on the floor, so the floor is now timed directly
 | 71-75 (floor) | -1.1% | -27.0% | +20.9% | +3.0% |
 | 128 | +4.0% | -17.2% | +26.4% | +12.4% |
 | 192 | +12.9% | -1.3% | +32.0% | +22.3% |
-| 256 | +22.5% | +15.4% | **+37.8%** | +32.7% |
+| 256 | +22.4% | +15.4% | **+37.8%** | +32.7% |
 | 384 | +25.0% | +21.3% | +36.8% | **+34.2%** |
 | 512 | **+27.9%** | +26.4% | +37.5% | +33.3% |
 | 1024 | +26.9% | **+28.7%** | +35.5% | +32.5% |
@@ -57,17 +58,42 @@ percentage plateaus.
 
 Re-run over the 8-anchor curve (`scripts/analyze_length_weighted_cost.py`):
 
-| regime | model | published | 5-anchor | **8-anchor** |
-|---|---|---|---|---|
-| nf4 | llama3.2-1b | +4.4% | -2.5% | **-0.8%** |
-| nf4 | qwen2.5-1.5b | -4.0% | -12.5% | **-9.4%** |
-| bf16 | llama3.2-1b | +21.5% | +16.7% | **+17.9%** |
-| bf16 | qwen2.5-1.5b | +16.3% | +11.0% | **+12.7%** |
+| regime | model | published | 5-anchor | 8-anchor | **8-anchor, rendered lengths** |
+|---|---|---|---|---|---|
+| nf4 | llama3.2-1b | +4.4% | -2.5% | -0.8% | **+2.3%** |
+| nf4 | qwen2.5-1.5b | -4.0% | -12.5% | -9.4% | **-2.2%** |
+| bf16 | llama3.2-1b | +21.5% | +16.7% | +17.9% | **+20.0%** |
+| bf16 | qwen2.5-1.5b | +16.3% | +11.0% | +12.7% | **+17.4%** |
 
 Adding the 192/256/384 anchors moved every arm by at most 1.5 points, so the 128-to-512
 interpolation was **not** a large error source despite spanning a quarter of the traffic.
 Measuring the floor was: it is worth 4.9 to 7.1 points, because the baseline pays `k2` on
-every input and so gains more than the cascade from a cheaper short-request `k2`.
+every input and so gains more than the cascade from a cheaper short-request `k2`. Reading the
+lengths in the right units (next paragraph) was worth another 2.1 to 7.2.
+
+**A unit bug in the 8-anchor column, found afterwards and now fixed.**
+`analyze_length_weighted_cost.py` took each request's **raw payload** token count and looked it up
+on a curve whose x-axis is the **rendered prompt** length. The two differ by the template floor
+(§2: 75 / 74 / 71 tokens), so every request was priced about 74 tokens too far left. Stage 2's
+curve is much steeper than Stage 1's, so this understated `k2` more than `k1` and therefore
+**understated the reduction**.
+
+The script now renders each request through `format_prompt` and tokenizes it with **each stage's
+own** tokenizer at `add_special_tokens=False`, which is precisely what
+`benchmark_latency_curve.py` records as `actual_prompt_tokens`. Validation: the empty prompt
+renders to 75 / 74 / 71 tokens, matching the curves' shortest anchors exactly. The last column
+above is the regenerated result (`cost_lwfull_*.json`, 2026-09-02): every arm improves by 2.1
+(bf16 llama) to 7.2 points (nf4 qwen), and nf4 llama crosses from negative to slightly positive.
+
+Two conclusions change wording. The eval's median request is **144 rendered tokens**, not 70 —
+still far below 512, so uniform-512 still flatters the cascade. And "nf4 loses money" becomes
+**"nf4 is roughly cost-neutral"** (+2.3% / −2.2%): the sign is inside plausible measurement drift,
+so the claim to make is that the entire length-weighted saving depends on a bf16 Stage-1.
+
+The fix also **retires the flat-hold caveat**. The curve's floor is the empty-prompt length, so no
+request can fall below it, and only 0.06% run past the 2049-token top anchor — essentially every
+request is priced on measured ground. The old "68% of requests fall below the shortest measured
+length" caveat was an artifact of comparing payload lengths against rendered anchors.
 
 ## 5. One old anchor does not reproduce
 

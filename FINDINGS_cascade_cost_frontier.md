@@ -1,6 +1,35 @@
 # Findings — Cascade Cost/Escalation Frontier (E2 Stage-1 → route → modeled Stage-2)
 
-_Last updated: 2026-08-05_
+_Last updated: 2026-08-05. **Superseded 2026-08-19 by `FINDINGS_E5_E7_cascade_headline.md`.**_
+
+> ## ⚠️ Read this before quoting anything below
+>
+> **This document's negative conclusion has been overturned, and every limitation it lists as
+> open has since been closed.** It is kept as the record of what the modeled-Stage-2 analysis
+> showed, and of why that analysis was misleading.
+>
+> - **Stage-2 is no longer modeled.** Mistral-7B "M2" was fine-tuned (50,349 training rows) and
+>   scored per-row on the full 25,747-row eval set. Limitation #1 below ("untrained, empty stub")
+>   is obsolete.
+> - **k1 and k2 are measured.** Same-GPU (A10G), batch=1, eight prompt lengths from 64 to 2048
+>   tokens. Limitation #2 ("k1 is unmeasured, no same-GPU pair") is obsolete.
+> - **Track B and Track C are done.** All three Stage-1 candidates were trained and scored from
+>   confirmed adapters, so limitation #5 (repo-bundled adapter, ~6% drift) is obsolete.
+> - **The conclusion flipped from negative to positive.** With a real per-row Stage-2, Stage-2's
+>   threshold adapts to the escalated subpopulation — an effect a constant-Stage-2 model cannot
+>   express. The cascade escalates ~40% (qwen) / ~52% (llama) of traffic while matching M2's
+>   detection at 1% FPR, for a measured 26–37% cost reduction at a uniform 512 tokens
+>   (−9% to +18% on the eval's real length mix).
+>
+> **Why the numbers here are so much worse.** Three reasons, and they are worth keeping: (a)
+> Stage-2 was a constant, so escalating could never improve Stage-2's own operating point;
+> (b) the frontier was swept on the tiny 253/366/523 splits rather than the 25,747-row eval;
+> (c) it demanded *zero* attack leakage, which forces `e`→1. The successor analysis freezes
+> `θ_safe` on calibration and accepts a measured leak floor instead.
+>
+> What does survive: §2's overfitting/calibration story (validation saturates, calibration
+> collapses under shift while ranking survives) held up, and the same collapse is visible in the
+> successor's E6e result — the 1%-FPR threshold frozen on calibration gives 57.9% FPR on eval.
 
 ## 0. TL;DR (the headline)
 

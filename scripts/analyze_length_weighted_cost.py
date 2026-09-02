@@ -8,18 +8,29 @@ what its own token count costs. This script re-does the accounting per input:
   baseline = sum_i k2(len_i)
   cascade  = sum_i k1(len_i) + sum_{i escalated} k2(len_i)
 
-k(len) interpolates the measured latency curve (results/analysis/
-latency_measured.json, four lengths) and is held flat outside it. Routing uses
-the frozen theta_safe and the saved Stage-1 p_safe, so escalation is each
-input's real decision, not an average.
+k(len) interpolates the measured latency curve (see --latency) and is held flat
+outside it. Routing uses the frozen theta_safe and the saved Stage-1 p_safe, so
+escalation is each input's real decision, not an average.
+
+`len_i` is the **rendered prompt** length: the request text put through
+`format_prompt` (system prompt + template + payload) and tokenized with that
+stage's own tokenizer, `add_special_tokens=False` -- exactly what
+`benchmark_latency_curve.py` records as `actual_prompt_tokens`. Both sides of
+the interpolation therefore speak the same units. An earlier version measured
+the raw payload only, which priced every request ~74 tokens too far left on the
+curve (the template's own length) and, because Stage 2's curve is much steeper
+than Stage 1's, understated k2 more than k1 and so understated the reduction.
+Stage 1 and Stage 2 get separate counts: their templates and tokenizers differ,
+so the same request renders to different lengths for each.
 
 Logits only + token counts; never prints text. Payload-safe.
 
 Usage:
-    python scripts/analyze_length_weighted_cost.py \
-        --stage1-dir results_kaggle/stage1/qwen2.5-1.5b \
+    PYTHONPATH=. python scripts/analyze_length_weighted_cost.py \
+        --stage1-dir results/stage1_prec/nf4/qwen2.5-1.5b \
         --stage1-name qwen2.5-1.5b --stage1-e 0.397 \
-        --out results/analysis/cost_length_weighted_qwen2.json
+        --latency results/analysis/latency_curve_full_nf4.json \
+        --out results/analysis/cost_lwfull_qwen2_nf4.json
 """
 from __future__ import annotations
 
@@ -31,6 +42,9 @@ import numpy as np
 from tokenizers import Tokenizer
 
 ROOT = Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0, str(ROOT))
+from src.models.prompt_template import format_prompt, load_model_config  # noqa: E402
 # Anchors are derived from the latency file itself (see _curve) so a curve
 # measured at extra lengths -- e.g. the 64-token point added by the short-input session --
 # enters the interpolation instead of being silently ignored.
@@ -64,8 +78,7 @@ def _latency(per_model: dict, name: str, ntok: np.ndarray) -> np.ndarray:
     return np.interp(ntok, xs, ys)      # flat below xs[0] and above xs[-1]
 
 
-def _token_counts(eval_path: Path, tokenizer_path: Path) -> np.ndarray:
-    tok = Tokenizer.from_file(str(tokenizer_path))
+def _read_eval(eval_path: Path) -> tuple[list[str], np.ndarray]:
     texts, sources = [], []
     with eval_path.open() as f:
         for line in f:
@@ -73,9 +86,25 @@ def _token_counts(eval_path: Path, tokenizer_path: Path) -> np.ndarray:
                 r = json.loads(line)
                 texts.append(r.get("text") or r.get("input") or "")
                 sources.append(r.get("source"))
-    counts = np.array([len(e.ids) for e in tok.encode_batch(texts)], float)
-    del texts                                   # drop payloads immediately
-    return counts, np.asarray(sources, object)
+    return texts, np.asarray(sources, object)
+
+
+def _rendered_token_counts(texts: list[str], model_name: str,
+                           tokenizer_path: Path) -> np.ndarray:
+    """Rendered-prompt token count per request, in the latency curve's own units.
+
+    The curve's x-axis is `actual_prompt_tokens` = len(tokenizer(format_prompt(
+    config, text), add_special_tokens=False)), so this reproduces that exactly.
+    Counting the raw payload instead would omit the template's ~71-75 tokens.
+    """
+    config = load_model_config(model_name)
+    tok = Tokenizer.from_file(str(tokenizer_path))
+    prompts = [format_prompt(config, t) for t in texts]
+    counts = np.array(
+        [len(e.ids) for e in tok.encode_batch(prompts, add_special_tokens=False)],
+        float)
+    del prompts                                 # drop payloads immediately
+    return counts
 
 
 def _p_safe(path: Path) -> np.ndarray:
@@ -100,16 +129,30 @@ def evaluate(args) -> dict:
     per_model = lat["per_model"]
     usd = args.usd_per_gpu_hour or lat.get("gpu_hourly_usd_assumption", 1.20)
 
-    ntok, sources = _token_counts(ROOT / args.eval_split,
-                                  ROOT / args.stage1_dir / "adapter/tokenizer.json")
+    texts, sources = _read_eval(ROOT / args.eval_split)
+    # Each stage renders and tokenizes the same request differently, so each gets
+    # its own length array on its own curve.
+    ntok1 = _rendered_token_counts(
+        texts, args.stage1_name, ROOT / args.stage1_dir / "adapter/tokenizer.json")
+    ntok2 = _rendered_token_counts(
+        texts, STAGE2, ROOT / args.stage2_dir / "adapter/tokenizer.json")
+    del texts                                   # drop payloads immediately
     p_safe = _p_safe(ROOT / args.stage1_dir / "eval_logits.jsonl")
-    if len(p_safe) != len(ntok):
-        raise SystemExit(f"row mismatch: {len(p_safe)} logits vs {len(ntok)} eval rows")
+    if len(p_safe) != len(ntok1):
+        raise SystemExit(f"row mismatch: {len(p_safe)} logits vs {len(ntok1)} eval rows")
 
     escalated = p_safe < args.theta_safe
-    k1 = _latency(per_model, args.stage1_name, ntok)
-    k2 = _latency(per_model, STAGE2, ntok)
-    n = len(ntok)
+    k1 = _latency(per_model, args.stage1_name, ntok1)
+    k2 = _latency(per_model, STAGE2, ntok2)
+    n = len(ntok1)
+
+    # Each curve's measured span. Outside it latency is held flat. The lower end is
+    # not an approximation: the curve's floor is the rendered template's own length,
+    # so no request can be shorter than it.
+    xs1, xs2 = _curve(per_model, args.stage1_name)[0], _curve(per_model, STAGE2)[0]
+    floor1, top1 = float(xs1[0]), float(xs1[-1])
+    floor2, top2 = float(xs2[0]), float(xs2[-1])
+    off_curve = float(((ntok1 > top1) | (ntok2 > top2)).mean())
 
     baseline_ms = float(k2.sum())
     cascade_ms = float(k1.sum() + k2[escalated].sum())
@@ -125,8 +168,8 @@ def evaluate(args) -> dict:
     for src in sorted(set(sources.tolist())):
         m = sources == src
         by_source[src] = {"n": int(m.sum()),
-                          "median_tokens": float(np.median(ntok[m])),
-                          "p90_tokens": float(np.percentile(ntok[m], 90))}
+                          "median_tokens": float(np.median(ntok1[m])),
+                          "p90_tokens": float(np.percentile(ntok1[m], 90))}
 
     return {
         "stage1_name": args.stage1_name,
@@ -136,11 +179,30 @@ def evaluate(args) -> dict:
         "gpu_hourly_usd_assumption": usd,
         "escalation_rate_measured": float(escalated.mean()),
         "escalation_rate_reported": args.stage1_e,
+        "inputs": {
+            "latency_file": args.latency,
+            "latency_measured_utc": lat.get("measured_utc"),
+            "length_keys": LENGTH_KEYS or "all present in latency file",
+            "stage1_anchors_tokens": [int(x) for x in _curve(per_model, args.stage1_name)[0]],
+            "stage2_anchors_tokens": [int(x) for x in _curve(per_model, STAGE2)[0]],
+            "stage1_logits": f"{args.stage1_dir}/eval_logits.jsonl",
+            "eval_split": args.eval_split,
+            "token_count_basis": "rendered prompt (format_prompt + own tokenizer, "
+                                 "add_special_tokens=False); matches the curve's "
+                                 "actual_prompt_tokens",
+        },
         "token_length": {
-            "median": float(np.median(ntok)), "mean": float(ntok.mean()),
-            "p10": float(np.percentile(ntok, 10)), "p90": float(np.percentile(ntok, 90)),
-            "frac_below_shortest_measured_128": float((ntok < 128).mean()),
-            "frac_at_or_above_512": float((ntok >= 512).mean()),
+            "_basis": "rendered prompt tokens, Stage-1 template/tokenizer",
+            "median": float(np.median(ntok1)), "mean": float(ntok1.mean()),
+            "p10": float(np.percentile(ntok1, 10)),
+            "p90": float(np.percentile(ntok1, 90)),
+            "min": float(ntok1.min()), "max": float(ntok1.max()),
+            "stage1_curve_span_tokens": [floor1, top1],
+            "stage2_curve_span_tokens": [floor2, top2],
+            "frac_above_curve_top": off_curve,
+            "frac_at_or_above_512": float((ntok1 >= 512).mean()),
+            "stage2_median": float(np.median(ntok2)),
+            "stage2_mean": float(ntok2.mean()),
             "by_source": by_source,
         },
         "uniform_512_accounting": {
@@ -169,12 +231,16 @@ def evaluate(args) -> dict:
             "usd_per_million_router_cost": _usd_per_million(router_ms, n, usd),
         },
         "caveats": [
-            "Latency is held flat below the shortest measured length (128 tokens); "
-            f"{(ntok < 128).mean():.1%} of requests fall there, so the very-short "
-            "regime is unmeasured and the sign of a near-zero result is not firm.",
+            f"Curves span {floor1:.0f}-{top1:.0f} tokens (Stage-1) and "
+            f"{floor2:.0f}-{top2:.0f} (Stage-2); latency is held flat outside. "
+            "No request can fall below the floor -- that is the rendered "
+            f"template's own length -- and only {off_curve:.2%} of requests run "
+            "past the top anchor, so essentially every request is priced on the "
+            "measured part of the curve.",
             "Single-stream (batch=1) only. Batching amortises the fixed overhead "
             "that dominates at short lengths and should recover part of the gap.",
-            "Token counts use the Stage-1 tokeniser; Stage-2's differs slightly.",
+            "Each stage's length is rendered and tokenized with its own template "
+            "and tokenizer, so the two curves are read in their own units.",
         ],
     }
 
@@ -186,7 +252,10 @@ def main():
     p.add_argument("--stage1-e", type=float, required=True,
                    help="reported escalation rate, for the uniform-512 comparison")
     p.add_argument("--eval-split", default="data/eval_proposal/eval.jsonl")
-    p.add_argument("--latency", default="results/analysis/latency_measured.json")
+    p.add_argument("--stage2-dir", default="results/stage2/mistral-7b-v0.1",
+                   help="Stage-2 dir; its adapter/tokenizer.json renders the k2 lengths")
+    p.add_argument("--latency",
+                   default="results/analysis/latency_curve_full_nf4.json")
     p.add_argument("--length-keys", default=None,
                    help="comma-separated subset of latency anchors to interpolate over "
                         "(default: every length present). Lets one session's curve be "
@@ -205,8 +274,11 @@ def main():
     lw, un = res["length_weighted_accounting"], res["uniform_512_accounting"]
     print(f"{res['stage1_name']}  n={res['n_eval']}  "
           f"escalation={res['escalation_rate_measured']:.4f}")
-    print(f"  median request = {res['token_length']['median']:.0f} tokens; "
-          f"{res['token_length']['frac_at_or_above_512']:.1%} >= 512")
+    tl = res["token_length"]
+    print(f"  rendered request tokens: median {tl['median']:.0f}, "
+          f"range {tl['min']:.0f}-{tl['max']:.0f}; "
+          f"{tl['frac_at_or_above_512']:.1%} >= 512; "
+          f"{tl['frac_above_curve_top']:.2%} past the curve's top anchor")
     print(f"  uniform-512     reduction = {un['reduction']:+.1%}  "
           f"(r={un['r']:.3f}, break-even e={un['break_even_e']:.3f})")
     print(f"  length-weighted reduction = {lw['reduction']:+.1%}  "
