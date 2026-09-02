@@ -1,4 +1,4 @@
-# QLoRA defaults for the 7B Stage-2 fine-tune (E2b / cascade-pid-13g.3).
+# QLoRA defaults for the 7B Stage-2 fine-tune (E2b).
 # Identical to configs/training.yaml EXCEPT the per-device batch is dropped to 1
 # and gradient_accumulation raised to 32 so a 7B base fits a 24 GB-class GPU
 # while holding the SAME effective batch (1*32 = 32 = the E2 stage-1 8*4).

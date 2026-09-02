@@ -1,11 +1,12 @@
-"""13g.2 — build the stage-2 augmented training set.
+"""Build the stage-2 augmented training set.
 
 WHY. The stage-2 fine-tune trains on data/train_proposal/train.jsonl, whose
 BENIGN rows are short (len p50=72, p90=130; only 0.17% >=1k chars) while its
 INJECTION rows are long (p50=868). A classifier fit on that learns the spurious
 shortcut "long text => injection". At eval, 30% of benign is long (p50=219,
 p90=2336) so it gets flagged — exactly the 62-65% benign-FPR failure that killed
-DataSentinel-7B (bead t6y; see bd memory stage2-train-benign-length-confound).
+DataSentinel-7B (confirmed by the benign-FP probe; see bd memory
+stage2-train-benign-length-confound).
 `channel` is NOT a model feature (src/models/prompt_template.py scores only
 "Text:\n{text}\n\nLabel:"), so the fix is purely the benign TEXT-LENGTH
 distribution.
@@ -233,7 +234,7 @@ def main():
     added_lens = [len(r["input"]) for r in aug_rows]
 
     manifest = {
-        "task": "cascade-pid-13g.2",
+        "task": "build-stage2-trainset",
         "seed": SEED,
         "length_band": [MIN_LEN, MAX_LEN],
         "dedup": {"cos_thr": COS_THR, "jac_thr": JAC_THR, "legs": legs,

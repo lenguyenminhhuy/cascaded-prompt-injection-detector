@@ -190,7 +190,45 @@ def _meta(path: Path):
     return ids, np.asarray(lab, int), np.asarray(ch, object), np.asarray(tlen, int)
 
 
-def load() -> dict:
+# Escalation rate e is a property of the Stage-1 scores, not of the latency measurement,
+# and it differs between quantization regimes (bf16 and NF4 scores of the same adapter
+# differ by ~5.2% on eval, so the same theta_safe routes a different fraction). It is
+# therefore sourced from the scoring artifacts, never carried inside a latency file.
+BF16_COST_ARTIFACTS = {"llama3.2-1b": "results/analysis/cost_lwfull_llama3_bf16.json",
+                       "qwen2.5-1.5b": "results/analysis/cost_lwfull_qwen2_bf16.json"}
+SECONDS_PER_HOUR = 3600.0
+
+
+def _cascade_block(doc: dict, e_by_model: dict, tokens: int = 512) -> dict:
+    """{model: {k1_ms, k2_ms, e, k1_over_k2, breakeven_e, reduction_at_e, ...}} at one length.
+
+    Accepts either latency schema: the original files carry this block precomputed at 512
+    tokens; scripts/benchmark_latency_curve.py records a full profile instead, from which
+    the same quantities are derived here. Deriving them keeps e out of the latency file,
+    so a curve cannot silently pair one regime's latencies with another regime's routing.
+    """
+    key = str(tokens)
+    per = doc["per_model"]
+    s2 = next(m for m, spec in per.items() if spec.get("role") == "stage2")
+    k2 = per[s2]["by_length"][key]["median_ms"]
+    usd = doc.get("gpu_hourly_usd_assumption", 1.20)
+    per_m = lambda ms: ms / 1000.0 / SECONDS_PER_HOUR * usd * 1e6
+    out = {}
+    for m, spec in per.items():
+        if spec.get("role") != "stage1" or m not in e_by_model:
+            continue
+        k1 = spec["by_length"][key]["median_ms"]
+        e = e_by_model[m]
+        r = k1 / k2
+        out[m] = {"k1_ms": k1, "k2_ms": k2, "e": e, "k1_over_k2": round(r, 4),
+                  "breakeven_e": round(1.0 - r, 4), "reduction_at_e": 1.0 - r - e,
+                  "cascade_cost": {"latency_ms": k1 + e * k2,
+                                   "usd_per_1m": per_m(k1 + e * k2)},
+                  "guard_cost": {"latency_ms": k2, "usd_per_1m": per_m(k2)}}
+    return out
+
+
+def load(latency: str, latency_bf16: str) -> dict:
     d: dict = {}
     ids, y, ch, tlen = _meta(ROOT / EVAL_SPLIT)
     d["ids"], d["y"], d["ch"], d["tlen"] = ids, y, ch, tlen
@@ -233,8 +271,17 @@ def load() -> dict:
         d["eval_logp"][k] = (lb, li)
 
     d["summaries"] = {k: json.loads((ROOT / p).read_text()) for k, (_, p) in CASCADES.items()}
-    d["latency"] = json.loads((ROOT / "results/analysis/latency_measured.json").read_text())
-    d["latency_bf16"] = json.loads((ROOT / "results/analysis/latency_measured_bf16stage1.json").read_text())
+    lat = json.loads((ROOT / latency).read_text())
+    lat_bf = json.loads((ROOT / latency_bf16).read_text())
+    e_nf4 = {mname: d["summaries"][k]["headline_cal_frozen"]["on_eval"]["escalation_rate"]
+             for k, mname in (("cascade_llama", "llama3.2-1b"), ("cascade_qwen", "qwen2.5-1.5b"))}
+    e_bf16 = {m: json.loads((ROOT / p).read_text())["escalation_rate_measured"]
+              for m, p in BF16_COST_ARTIFACTS.items()}
+    if "cascade_k1k2" not in lat or "k1_ms" not in next(iter(lat["cascade_k1k2"].values()), {}):
+        lat["cascade_k1k2"] = _cascade_block(lat, e_nf4)
+    if "cascade_k1k2" not in lat_bf or "k1_ms" not in next(iter(lat_bf["cascade_k1k2"].values()), {}):
+        lat_bf["cascade_k1k2"] = _cascade_block(lat_bf, e_bf16)
+    d["latency"], d["latency_bf16"] = lat, lat_bf
     d["stage1_sel"] = json.loads((ROOT / "results/metrics/stage1_selection.json").read_text())
     return d
 
@@ -706,6 +753,10 @@ def main() -> int:
     ap.add_argument("--formats", default="pdf,png")
     ap.add_argument("--dpi", type=int, default=400)
     ap.add_argument("--only", default="", help="comma-separated figure names")
+    ap.add_argument("--latency", default="results/analysis/latency_curve_full_nf4.json",
+                   help="NF4 latency measurement backing the cost panel")
+    ap.add_argument("--latency-bf16", default="results/analysis/latency_curve_full_bf16.json",
+                   help="bf16 Stage-1 latency measurement (Stage 2 is NF4 in both)")
     args = ap.parse_args()
 
     names = [n.strip() for n in args.only.split(",") if n.strip()] or list(FIGURES)
@@ -717,7 +768,7 @@ def main() -> int:
     fmts = [f.strip() for f in args.formats.split(",") if f.strip()]
 
     print("loading scores ...")
-    D = load()
+    D = load(args.latency, args.latency_bf16)
     print(f"  eval n={len(D['y'])}  attacks={int((D['y'] == 1).sum())}  benign={int((D['y'] == 0).sum())}")
     args.out.mkdir(parents=True, exist_ok=True)
 

@@ -1,4 +1,4 @@
-# Stage-2 base (E2b / cascade-pid-13g.3). Same base weights as the released
+# Stage-2 base (E2b). Same base weights as the released
 # DataSentinel-7B KAD adapter, so M2 is an apples-to-apples in-distribution
 # classifier fine-tune: "on identical Mistral-7B-v0.1 weights, the released KAD
 # fine-tune collapses to 62-65% benign FPR while our classifier achieves [X]."

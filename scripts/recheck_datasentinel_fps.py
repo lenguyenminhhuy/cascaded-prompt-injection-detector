@@ -1,7 +1,7 @@
-"""t6y probe — re-score sampled DataSentinel-7B benign FPs with instrumentation.
+"""Benign-FP probe — re-score sampled DataSentinel-7B benign FPs with instrumentation.
 
-Validates that the 65% benign FPR is model behaviour, not an inference bug
-(cascade-pid-t6y). Runs on the ~30 rows listed in
+Validates that the 65% benign FPR is model behaviour, not an inference bug.
+Runs on the ~30 rows listed in
 results/analysis/t6y_fp_sample_ids.json (20 FPs + 10 TN controls) and writes
 a REDACTED record per row — never raw text — so outputs are safe to commit
 and to read in AI-assistant sessions (see CLAUDE.md payload hygiene).
@@ -17,7 +17,7 @@ Interpretation:
   - key_in_response_ci=True while exact=False -> case-sensitivity artifact
   - neither                                   -> FPR is real KAD behaviour
 
-Also checksums the adapter files (adapter identity, cascade-pid-a40.9).
+Also checksums the adapter files, to pin adapter identity.
 
 Usage (Colab, CUDA GPU, repo synced at MyDrive/Thesis):
     %env DATASENTINEL_7B_PATH=/content/drive/MyDrive/Thesis/checkpoints/datasentinel_7b_adapter
@@ -210,7 +210,7 @@ def main():
     still_fp10 = sum(r["verdict_mnt10"] for r in fps)
     ci_only = sum(1 for r in fps if r["mnt10"]["key_in_response_ci"] and not r["mnt10"]["key_in_response"])
     trunc = sum(1 for r in fps if r["mnt10"]["key_truncated"])
-    print("\n=== t6y probe summary ===")
+    print("\n=== benign-FP probe summary ===")
     print(f"FPs reproduced at mnt=10 : {still_fp10}/{len(fps)}  (original run said {len(fps)}/{len(fps)})")
     print(f"FPs flipped at mnt=30    : {flipped}  (>0 -> truncation artifact)")
     print(f"lowercase-key-only FPs   : {ci_only}  (>0 -> case-sensitivity artifact)")
