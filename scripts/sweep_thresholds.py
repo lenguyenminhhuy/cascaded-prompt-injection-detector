@@ -13,8 +13,8 @@ and reports, per split:
   * unit-invariant cost reduction vs Stage-2-only, per k1/k2 ratio
 
 Cost is ``C(e) = k1 + e*k2`` (src/evaluation/cost.py). Because Stage-1 latency
-k1 is unmeasured and there is no same-GPU (k1,k2) pair yet (bead
-cascade-pid-mpa), the headline cost axis is the *unit-invariant* reduction as a
+k1 is unmeasured and there is no same-GPU (k1,k2) pair yet, the headline cost
+axis is the *unit-invariant* reduction as a
 function of the ratio r=k1/k2; one illustrative $ figure uses the measured
 DataSentinel k2 ~= 1459 ms and k1 = r*k2.
 
@@ -25,8 +25,7 @@ LIMITATIONS (also written into every output header):
   2. Cost is unit-invariant; absolute $ is ILLUSTRATIVE only (k1 unmeasured).
   3. Thresholds are PRE-CALIBRATION (E4) — this is the exploratory frontier,
      not the final calibrated operating point.
-  4. Small n (253/366/523) — add paired-bootstrap CIs later (bead
-     cascade-pid-045).
+  4. Small n (253/366/523) — add paired-bootstrap CIs later.
   5. Logit provenance — current logits are from the REPO-bundled adapter; re-run
      scripts/score_split.py on the confirmed training adapter before quoting
      final numbers.
@@ -78,9 +77,9 @@ FPR_TARGETS = [0.01, 0.05, 0.10]
 
 LIMITATIONS = [
     "Stage-2 is MODELED, not measured (M2 untrained; DataSentinel unusable / wrong dataset).",
-    "Cost is unit-invariant; absolute $ is ILLUSTRATIVE only (k1 unmeasured, bead cascade-pid-mpa).",
+    "Cost is unit-invariant; absolute $ is ILLUSTRATIVE only (k1 unmeasured).",
     "Thresholds are PRE-CALIBRATION (E4) — exploratory frontier, not the final operating point.",
-    "Small n (253/366/523) — add paired-bootstrap CIs later (bead cascade-pid-045).",
+    "Small n (253/366/523) — add paired-bootstrap CIs later.",
     "Logits from the REPO-bundled adapter; re-score the confirmed training adapter for final numbers.",
 ]
 

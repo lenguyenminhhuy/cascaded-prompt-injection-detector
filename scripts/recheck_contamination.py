@@ -1,4 +1,4 @@
-"""E6c — contamination-controlled re-score (bead cascade-pid-egv.3).
+"""E6c — contamination-controlled re-score.
 
 Re-scores every E5 system on the eval set MINUS one source (default
 openpromptinjection), post-hoc on saved logits. Motivation: E6a shows detection

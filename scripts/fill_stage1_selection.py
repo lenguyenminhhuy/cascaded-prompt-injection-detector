@@ -1,10 +1,10 @@
-"""E2 Stage-1 selection table + single-stage eval rows (bead 72n.4) — NO GPU,
+"""E2 Stage-1 selection table + single-stage eval rows — NO GPU,
 payload-safe. Computes, for each candidate with {val,eval}_logits.jsonl:
 
   * val:  DR@1%FPR (primary selection metric), ECE, F1  -> stage1_selection.json
   * eval: AUROC, DR@1%FPR, ECE                          -> tab:stage1-single row
 
-Selection rule (72n.4): primary val DR@1%FPR; tie-break pre-calibration ECE.
+Selection rule: primary val DR@1%FPR; tie-break pre-calibration ECE.
 Reuses the tested load_rows + compute_metrics, so llama/qwen reproduce their
 published rows exactly and Granite slots in on the identical code path.
 

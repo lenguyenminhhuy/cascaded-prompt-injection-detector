@@ -1,4 +1,4 @@
-"""Unit tests for the E3 calibration module (bead cascade-pid-a40.3).
+"""Unit tests for the E3 calibration module.
 
 Covers: temperature fit reduces NLL + ECE on synthetic overconfident logits;
 TemperatureScaler JSON round-trip and calibrated_logps consistency; isotonic

@@ -1,4 +1,4 @@
-"""Experiment 2: QLoRA fine-tune a Stage-1 (or Stage-2) candidate — cascade-pid-a40.2.
+"""Experiment 2: QLoRA fine-tune a Stage-1 (or Stage-2) candidate.
 
 Fine-tunes a config-driven causal LM into the constrained-label classifier that
 src/models/stage1.py scores (labels ``(benign, injection)``, benign first). One
@@ -9,8 +9,8 @@ code change.
 Objective: supervised fine-tuning (peft LoRA adapter) with the loss masked to
 the label completion only. On CUDA the base loads in 4-bit NF4 (QLoRA);
 bitsandbytes is CUDA-only, so on Apple MPS / CPU the base loads unquantized
-(bf16/fp32) — enough for the local 1-step dry-run this bead requires. Real
-training runs are the cloud-gpu beads (72n.*, 13g.3).
+(bf16/fp32) — enough for the local 1-step dry-run. The real training runs happen
+on cloud GPUs: the three Stage-1 candidates and the 7B Stage-2 fine-tune.
 
 Outputs under ``results/stage1/<name>/`` (E2 convention):
   adapter/            trained PEFT LoRA adapter + tokenizer
@@ -123,7 +123,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--train-file", type=Path, default=DEFAULT_TRAIN)
     p.add_argument("--output-dir", type=Path, default=None)
     p.add_argument("--dry-run", action="store_true",
-                   help="tiny subset + 1 optimizer step; verifies the pipeline locally (a40.2 check)")
+                   help="tiny subset + 1 optimizer step; verifies the pipeline locally")
     p.add_argument("--max-samples", type=int, default=None, help="cap training rows")
     p.add_argument("--dump-logits", nargs="+", type=Path, default=None, metavar="JSONL",
                    help="score these split(s) post-train -> <stem>_logits.jsonl (default: val+cal if present)")
@@ -217,7 +217,7 @@ def main() -> int:
     trainer.save_model(str(adapter_dir))
     tok.save_pretrained(str(adapter_dir))
     summary = {
-        "task": "cascade-pid-a40.2",
+        "task": "train-stage1",
         "model": config.name,
         "base_hf_id": config.hf_id,
         "train_file": args.train_file.name,
@@ -241,7 +241,7 @@ def main() -> int:
     log.info("saved adapter -> %s ; summary -> %s", adapter_dir, out_dir / "train_summary.json")
 
     # ---- logits-ready check + optional dumps -----------------------------
-    # Reuse the a40.1 scorer on the freshly trained model: proves the checkpoint
+    # Reuse the Stage-1 scorer on the freshly trained model: proves the checkpoint
     # yields label logits, and emits the E2 val/cal logit files.
     from src.models.stage1 import Stage1Detector
 

@@ -27,7 +27,7 @@ Honesty guards (added after review):
   * BOOTSTRAP 95% CIs on eval for cascade TPR, Stage-2-only DR, and the
     (cascade - Stage-2) gap — so "matches" vs "exceeds" is decided by the CI.
   * COST is reported as a reduction-vs-(k1/k2) curve; k1 (Stage-1 latency) is
-    UNMEASURED (bead cascade-pid-mpa). A FLOP/param ratio is annotated as a compute
+    UNMEASURED. A FLOP/param ratio is annotated as a compute
     proxy only; no $ figure is quoted.
   * DR@fixed-FPR and the routing frontier are invariant to monotone temperature
     scaling, so calibration is a DIAGNOSTIC (ECE before/after), not a lever.
@@ -199,8 +199,8 @@ def _cost_block(e, proxy_ratio):
     return {"escalation_rate": e, "flop_param_proxy_ratio": round(proxy_ratio, 4),
             "cost_reduction_at_proxy_pct": round(cost_reduction(proxy_ratio, 1.0, e) * 100.0, 2),
             "by_k1k2_ratio": by_ratio,
-            "caveat": ("k1 (Stage-1 latency) UNMEASURED; no same-hardware (k1,k2) pair yet "
-                       "(bead cascade-pid-mpa). Ratios are FLOP/param proxies (compute, not "
+            "caveat": ("k1 (Stage-1 latency) UNMEASURED; no same-hardware (k1,k2) pair yet. "
+                       "Ratios are FLOP/param proxies (compute, not "
                        "latency); no $ figure quoted.")}
 
 
