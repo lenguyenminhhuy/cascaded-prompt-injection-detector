@@ -1,6 +1,6 @@
 """E5 + E7 — end-to-end cascade evaluation with the REAL Stage-2 (no GPU, payload-safe).
 
-Unlike scripts/sweep_thresholds.py (which applies a *modeled* Stage-2 — a fixed
+Unlike scripts/eval/sweep_thresholds.py (which applies a *modeled* Stage-2 — a fixed
 (DR, FPR) pair — to the escalated band), this consumes the actual per-row Stage-2
 predictions on the SAME eval rows and computes the true end-to-end cascade.
 
@@ -35,9 +35,9 @@ Honesty guards (added after review):
 PAYLOAD HYGIENE (CLAUDE.md): reads only label + logit scores; never input text.
 Row-order join: logit files carry only {logp_benign, logp_injection, p_safe} (no id);
 alignment to the split is by row order, externally corroborated by per-source label
-purity in scripts/score_stage1_logits.py (e.g. alpaca pos=0, bipia neg=0).
+purity in scripts/eval/score_stage1_logits.py (e.g. alpaca pos=0, bipia neg=0).
 
-    PYTHONPATH=. python scripts/eval_cascade.py \
+    PYTHONPATH=. python scripts/eval/eval_cascade.py \
         --stage1-dir results_stage1/stage1/llama3.2-1b \
         --stage2-dir results/stage2/mistral-7b-v0.1 \
         --stage1-name llama3.2-1b --stage2-name mistral-7b \
@@ -54,12 +54,12 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 for _p in (ROOT, ROOT / "src"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-from scripts.score_stage1_logits import _label_to_int, auroc  # noqa: E402
+from scripts.eval.score_stage1_logits import _label_to_int, auroc  # noqa: E402
 from src.calibration.temperature_scaling import TemperatureScaler, gap_from_logps  # noqa: E402
 from src.evaluation.cost import cost_reduction  # noqa: E402
 from src.evaluation.metrics import detection_rate_at_fpr, ece  # noqa: E402

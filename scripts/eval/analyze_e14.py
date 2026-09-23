@@ -3,7 +3,7 @@
 Answers the question the channel-wise tail-coverage correlation cannot: does
 detection on the direct channel fall when ONLY the payload wording changes?
 
-Arms (scripts/build_e14_reword.py), identical in carrier, template marker and
+Arms (scripts/eval/build_e14_reword.py), identical in carrier, template marker and
 link phrase:
   A_original    the eval rows as published            (expect DR 0.922)
   B_reword      payload reworded to unseen phrasing   (the test)
@@ -20,7 +20,7 @@ SAME eval benign scores used for the published DR@1%FPR, so every arm is read
 at one operating point and no arm gets its own oracle threshold. AUROC against
 those benign scores is reported alongside as the threshold-free view.
 
-    PYTHONPATH=. python scripts/analyze_e14.py \
+    PYTHONPATH=. python scripts/eval/analyze_e14.py \
         --arms data/eval_proposal/e14_reword.jsonl \
         --arm-logits results/stage2/mistral-7b-v0.1/e14_reword_logits.jsonl \
         --eval data/eval_proposal/eval.jsonl \

@@ -27,12 +27,12 @@ LIMITATIONS (also written into every output header):
      not the final calibrated operating point.
   4. Small n (253/366/523) — add paired-bootstrap CIs later.
   5. Logit provenance — current logits are from the REPO-bundled adapter; re-run
-     scripts/score_split.py on the confirmed training adapter before quoting
+     scripts/train/score_split.py on the confirmed training adapter before quoting
      final numbers.
 
 Payload-safe: reads only labels + logit scores, never input text.
 
-    PYTHONPATH=. python scripts/sweep_thresholds.py \
+    PYTHONPATH=. python scripts/eval/sweep_thresholds.py \
         --logits-dir scratchpad/e2score2 --stage2-model perfect
 """
 
@@ -47,11 +47,11 @@ from typing import Dict, List
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.score_stage1_logits import load_rows  # noqa: E402
+from scripts.eval.score_stage1_logits import load_rows  # noqa: E402
 from src.evaluation.cost import cascade_cost_summary, cost_reduction  # noqa: E402
 from src.pipeline.routing import Thresholds, route  # noqa: E402
 from src.utils.io import load_yaml  # noqa: E402

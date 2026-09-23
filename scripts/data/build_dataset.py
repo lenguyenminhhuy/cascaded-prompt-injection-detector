@@ -38,7 +38,7 @@ from src.utils.seed import set_seed
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger("build")
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data"
 
 # Synthetic fill: (family, channel, count). Guarantees the cross-channel holdout

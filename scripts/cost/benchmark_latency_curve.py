@@ -38,7 +38,7 @@ numbers to sit a little ABOVE the old ones -- roughly 1% at 512 -- before
 concluding the session drifted.
 
 Usage (on the GPU box, from experiments/cascade-pid/):
-    PYTHONPATH=. python scripts/benchmark_latency_curve.py \
+    PYTHONPATH=. python scripts/cost/benchmark_latency_curve.py \
         --regime nf4 \
         --targets 128,192,256,384,512 \
         --stage1 llama3.2-1b:results_stage1/stage1/llama3.2-1b/adapter \
@@ -72,7 +72,7 @@ import torch
 from src.models.prompt_template import format_prompt, load_model_config
 from src.models.stage1 import Stage1Detector
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_TARGETS = (128, 192, 256, 384, 512)
 DEFAULT_REPS = 40
 DEFAULT_WARMUP = 8
@@ -222,7 +222,7 @@ def main() -> None:
 
     # k1/k2 at each length, for every Stage-1 candidate. e (escalation rate) is a
     # property of the Stage-1 scores, not of length, so it is not measured here;
-    # the cost sweep applies it in scripts/analyze_uniform_length_cost.py.
+    # the cost sweep applies it in scripts/cost/analyze_uniform_length_cost.py.
     k1k2 = {}
     for name, rec in per_model.items():
         if rec["role"] != "stage1":

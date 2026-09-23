@@ -22,7 +22,7 @@ from pathlib import Path
 from src.data.preprocessing.dedup import _normalize
 from src.data.schema import Sample
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SPLITS = ROOT / "data" / "splits"
 AUDIT = ROOT / "data" / "audit"
 SPLIT_NAMES = ["train", "cal", "test_in_dist", "test_cross_channel", "test_cross_domain"]

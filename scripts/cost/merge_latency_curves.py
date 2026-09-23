@@ -10,7 +10,7 @@ as the new anchors, and a curve has to be internally consistent to be interpolat
 over. The relative gap on every overlap is recorded under "merge_drift" so a session
 that moved is visible rather than silently absorbed.
 
-    python scripts/merge_latency_curves.py \
+    python scripts/cost/merge_latency_curves.py \
         --base results/analysis/latency_curve_nf4.json \
         --extra results/analysis/latency_curve_midgrid_nf4.json \
         --out results/analysis/latency_curve_merged_nf4.json
@@ -21,7 +21,7 @@ import argparse
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def merge(base: dict, extra: dict) -> dict:

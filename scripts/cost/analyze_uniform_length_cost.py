@@ -13,16 +13,16 @@ arm at the value measured for that quantization regime.
 
 The base curves have no anchor between 128 and 512, which is exactly where the saving turns
 over. `--extra-curve` merges in a later session's mid-grid measurement (see
-scripts/benchmark_latency_curve.py). Targets present in both files are treated as a drift
+scripts/cost/benchmark_latency_curve.py). Targets present in both files are treated as a drift
 control: the merged point comes from the extra file, and the relative gap against the base
 file is recorded under "drift_check" so a session that moved can be spotted rather than
 silently averaged in.
 
 Usage:
-    python scripts/analyze_uniform_length_cost.py \
+    python scripts/cost/analyze_uniform_length_cost.py \
         --out results/analysis/cost_uniform_length_sweep.json
 
-    python scripts/analyze_uniform_length_cost.py \
+    python scripts/cost/analyze_uniform_length_cost.py \
         --extra-curve nf4=results/analysis/latency_curve_midgrid_nf4.json \
         --extra-curve bf16=results/analysis/latency_curve_midgrid_bf16stage1.json \
         --out results/analysis/cost_uniform_length_sweep.json
@@ -33,7 +33,7 @@ import argparse
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 STAGE2 = "mistral-7b-v0.1"
 SECONDS_PER_HOUR = 3600.0
 DEFAULT_GPU_HOURLY_USD = 1.20

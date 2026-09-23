@@ -22,7 +22,7 @@ are fed to the model. Nothing but row index, label, rendered token count,
 timings and p_safe is written; no text is printed or stored.
 
 Usage (on the GPU box, from ~/cascade-pid):
-    PYTHONPATH=. ~/venv/bin/python scripts/measure_latency_indist.py \
+    PYTHONPATH=. ~/venv/bin/python scripts/cost/measure_latency_indist.py \
         --split data/train_proposal/val.jsonl --regime nf4 --reps 3 --warmup 8 \
         --model mistral-7b-v0.1:results/stage2/mistral-7b-v0.1/adapter --role stage2 \
         --out results/analysis/indist_latency/val_mistral-7b-v0.1_nf4
@@ -41,14 +41,14 @@ from pathlib import Path
 import numpy as np
 import torch
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 for _p in (ROOT, ROOT / "src"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
 from src.models.prompt_template import format_prompt, load_model_config  # noqa: E402
 from src.models.stage1 import Stage1Detector                             # noqa: E402
-from scripts.eval_cascade import _read_labels                           # noqa: E402
+from scripts.eval.eval_cascade import _read_labels                           # noqa: E402
 
 
 def _texts(path: str) -> list[str]:

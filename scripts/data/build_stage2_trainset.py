@@ -24,9 +24,9 @@ PAYLOAD HYGIENE (CLAUDE.md): this script NEVER prints raw dataset text — only
 counts, lengths, hashes. Do not add prints of `input`/`text`/`document`.
 
 Usage (from experiments/cascade-pid):
-    python scripts/build_stage2_trainset.py                # full build
-    python scripts/build_stage2_trainset.py --target 5000  # tune size
-    python scripts/build_stage2_trainset.py --no-cosine    # Jaccard-only screen
+    python scripts/data/build_stage2_trainset.py                # full build
+    python scripts/data/build_stage2_trainset.py --target 5000  # tune size
+    python scripts/data/build_stage2_trainset.py --no-cosine    # Jaccard-only screen
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 if str(ROOT / "scripts") not in sys.path:

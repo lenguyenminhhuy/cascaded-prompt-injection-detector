@@ -10,17 +10,17 @@ three schema-identical logit dirs the frontier engine consumes unmodified:
 
 Then compare frontiers with:
   for d in raw calfit_T oracle_T; do
-    PYTHONPATH=. python scripts/sweep_thresholds.py \
+    PYTHONPATH=. python scripts/eval/sweep_thresholds.py \
       --logits-dir results/analysis/calibration/$d \
       --theta-safe-range 0.5 1.0 --theta-unsafe-range 0.0 0.5 --step 0.005 \
       --stage2-model perfect --bootstrap 1000 \
       --out-dir results/analysis/calibration/frontier_$d ; done
-  PYTHONPATH=. python scripts/compare_frontier.py
+  PYTHONPATH=. python scripts/analysis/compare_frontier.py
 
 PAYLOAD HYGIENE (CLAUDE.md): reads only label + logit fields; never text. Emits
 only counts / metrics / logits.
 
-    PYTHONPATH=. python scripts/calibrate.py \
+    PYTHONPATH=. python scripts/train/calibrate.py \
         --logits-dir scratchpad/e2score2 \
         --cal-split data/train_proposal/cal.jsonl \
         --val-split data/train_proposal/val.jsonl \
@@ -36,7 +36,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 for _p in (ROOT, ROOT / "src"):  # metrics.py uses bare `from evaluation...`
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
@@ -52,7 +52,7 @@ from src.calibration.temperature_scaling import (  # noqa: E402
 from src.evaluation.metrics import ece  # noqa: E402
 from src.utils.io import read_jsonl, write_jsonl  # noqa: E402
 from src.utils.logging import get_logger  # noqa: E402
-from scripts.score_stage1_logits import _label_to_int, auroc  # noqa: E402
+from scripts.eval.score_stage1_logits import _label_to_int, auroc  # noqa: E402
 
 log = get_logger("calibrate")
 

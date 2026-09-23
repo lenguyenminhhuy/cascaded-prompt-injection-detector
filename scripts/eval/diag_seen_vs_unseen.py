@@ -18,7 +18,7 @@ down by channel; AUROC per channel is threshold-free and robust to small benign 
 
 PAYLOAD HYGIENE: reads only label + channel metadata + logit scores; never text.
 
-    PYTHONPATH=. python scripts/diag_seen_vs_unseen.py \
+    PYTHONPATH=. python scripts/eval/diag_seen_vs_unseen.py \
         --stage2-dir results/stage2/mistral-7b-v0.1 \
         --out-dir results/analysis/cascade_qwen2
 """
@@ -32,13 +32,13 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 for _p in (ROOT, ROOT / "src"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-from scripts.eval_cascade import _read_logits  # noqa: E402
-from scripts.score_stage1_logits import _label_to_int, auroc  # noqa: E402
+from scripts.eval.eval_cascade import _read_logits  # noqa: E402
+from scripts.eval.score_stage1_logits import _label_to_int, auroc  # noqa: E402
 from src.evaluation.metrics import detection_rate_at_fpr  # noqa: E402
 
 # normalise channel names across splits (val uses *-embedded / *-output suffixes)

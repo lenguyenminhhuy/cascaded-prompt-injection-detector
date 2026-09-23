@@ -13,7 +13,7 @@ token lengths. No dataset file is read and no text is printed. Outputs are laten
 cost_protocol.md: C(e)=k1+e*k2, break-even 1-k1/k2, reduction 1-(k1+e*k2)/k2,
 each in ms, GPU-seconds/1k, and $/1M requests (at $1.20/GPU-hr).
 
-    PYTHONPATH=. ~/venv/bin/python scripts/measure_latency.py \
+    PYTHONPATH=. ~/venv/bin/python scripts/cost/measure_latency.py \
         --lengths 128,512,1024,2048 --reps 40 --warmup 8 \
         --out results/analysis/latency_measured.json
 """
@@ -28,7 +28,7 @@ from pathlib import Path
 
 import torch
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 

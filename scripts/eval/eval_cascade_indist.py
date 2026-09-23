@@ -15,21 +15,21 @@ at the cal-selected log-grid theta_safe where one exists:
   * threshold transfer: M2's 1%-FPR threshold frozen on cal -> FPR on val (and
     on eval, to reproduce the OOD figure)
 
-    PYTHONPATH=. python scripts/eval_cascade_indist.py --out results/analysis/indist_cascade
+    PYTHONPATH=. python scripts/eval/eval_cascade_indist.py --out results/analysis/indist_cascade
 """
 from __future__ import annotations
 import argparse, json, sys
 from pathlib import Path
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 for _p in (ROOT, ROOT / "src"):
     if str(_p) not in sys.path: sys.path.insert(0, str(_p))
 from tokenizers import Tokenizer                                   # noqa: E402
 from src.models.prompt_template import load_model_config, format_prompt  # noqa: E402
 from src.evaluation.metrics import detection_rate_at_fpr           # noqa: E402
-from scripts.eval_cascade import _read_logits, _read_labels, _cascade_point, _bootstrap_gap  # noqa: E402
-from scripts.score_stage1_logits import auroc                      # noqa: E402
+from scripts.eval.eval_cascade import _read_logits, _read_labels, _cascade_point, _bootstrap_gap  # noqa: E402
+from scripts.eval.score_stage1_logits import auroc                      # noqa: E402
 
 FPR = 0.01
 THETA_FROZEN = 0.005

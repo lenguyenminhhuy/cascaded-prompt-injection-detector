@@ -18,9 +18,9 @@ normalisation) so no ``sentence-transformers``/``faiss`` dependency is needed;
 nearest neighbours are found by batched matrix multiplication.
 
 Usage (from ``experiments/cascade-pid``):
-    python scripts/cross_eval_dedup.py
-    python scripts/cross_eval_dedup.py --dry-run          # report only, no rewrite
-    python scripts/cross_eval_dedup.py --cos 0.95 --jac 0.5 --neighbours 10
+    python scripts/data/cross_eval_dedup.py
+    python scripts/data/cross_eval_dedup.py --dry-run          # report only, no rewrite
+    python scripts/data/cross_eval_dedup.py --cos 0.95 --jac 0.5 --neighbours 10
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from pathlib import Path
 import numpy as np
 
 # Project root (experiments/cascade-pid) on path so `src...` imports resolve.
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 

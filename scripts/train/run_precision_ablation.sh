@@ -57,7 +57,7 @@ for prec in $PRECISIONS; do
     fi
     mkdir -p "$OUT"
     echo "=== RUN $prec / $m -> $OUT ($(date -u +%FT%TZ)) ==="
-    PYTHONPATH=. $PY scripts/score_split.py \
+    PYTHONPATH=. $PY scripts/train/score_split.py \
       --config "configs/models/$m.yaml" \
       --adapter "$ADAPTER" \
       --splits $SPLITS \

@@ -2,7 +2,7 @@
 
 The manipulation is only meaningful if the reworded payloads are absent from the
 detectors' training text. Two checks, both reusing the measures already
-reported in scripts/diag_direct_overlap.py so the numbers are comparable with
+reported in scripts/eval/diag_direct_overlap.py so the numbers are comparable with
 Table "Train/eval overlap of the injected instruction, per channel":
 
   1. exact containment — does any rewording occur as a substring anywhere in
@@ -13,7 +13,7 @@ Table "Train/eval overlap of the injected instruction, per channel":
 
 Prints aggregate counts only; no injection text is emitted.
 
-    PYTHONPATH=. python scripts/verify_e14_unseen.py \
+    PYTHONPATH=. python scripts/eval/verify_e14_unseen.py \
         --train data/train_proposal/train_stage2.jsonl \
         --arms data/eval_proposal/e14_reword.jsonl \
         --out results/analysis/e14_unseen_check.json
@@ -24,10 +24,15 @@ from __future__ import annotations
 import argparse
 import json
 import statistics
+import sys
 from collections import defaultdict
 from pathlib import Path
 
-from build_e14_reword import REWORDS, SEEN_PAYLOADS  # noqa: E402
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.eval.build_e14_reword import REWORDS, SEEN_PAYLOADS  # noqa: E402
 
 
 # train files label as strings ("safe"/"unsafe"); eval rows use 0/1. Reading the

@@ -1,4 +1,4 @@
-# Tiny fixture for scripts/train_stage1.py --dry-run / CI smoke ONLY.
+# Tiny fixture for scripts/train/train_stage1.py --dry-run / CI smoke ONLY.
 # Not a real detector — sshleifer/tiny-gpt2 is a ~random 2-layer model that
 # downloads in seconds and has a real tokenizer, so the training loop, LoRA
 # wiring, and adapter save can be exercised on CPU/MPS without a multi-GB pull.

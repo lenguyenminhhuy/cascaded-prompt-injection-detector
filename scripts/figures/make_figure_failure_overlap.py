@@ -8,7 +8,7 @@ Panel B  Stage-2 injection-score distribution for the attacks Stage 1 escalated
          inputs benign too.
 
 Usage:
-    python scripts/make_figure_failure_overlap.py --out results/figures/thesis
+    python scripts/figures/make_figure_failure_overlap.py --out results/figures/thesis
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ mpl.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 INK, INK_2, INK_MUTED = "#0b0b0b", "#52514e", "#8a8880"
 BLUE, ORANGE, GREEN, RED = "#2a78d6", "#eb6834", "#1baf7a", "#e34948"
 FPR_TARGET, THETA_SAFE = 0.01, 0.005

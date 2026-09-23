@@ -18,7 +18,7 @@ Logits + labels + source/channel only. Never emits dataset text: --examples
 yields identifiers, scores and hashes, per this repo's payload-hygiene rule.
 
 Usage:
-    python scripts/analyze_failure_overlap.py \
+    python scripts/eval/analyze_failure_overlap.py \
         --stage1-dir results/stage1_prec/bf16/qwen2.5-1.5b \
         --stage1-name qwen2.5-1.5b-bf16 \
         --out results/analysis/failure_overlap_qwen_bf16.json
@@ -31,7 +31,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 FPR_TARGET = 0.01
 THETA_SAFE = 0.005
 STAGE2_DIR = "results/stage2/mistral-7b-v0.1"
@@ -165,8 +165,8 @@ def analyse(args) -> dict:
     if args.examples:
         # Payload hygiene (CLAUDE.md): identifiers, scores and hashes only.
         # Never emit dataset text. Inspect payloads with
-        #   PYTHONPATH=. python scripts/inspect_samples.py --ids <id> ...
-        # or scripts/demo_pipeline.py --show-payloads, in a plain terminal.
+        #   PYTHONPATH=. python scripts/data/inspect_samples.py --ids <id> ...
+        # or scripts/analysis/demo_pipeline.py --show-payloads, in a plain terminal.
         import hashlib
         texts = [json.loads(l).get("text", "") for l in (ROOT / args.eval_split).open() if l.strip()]
         idx = np.where(atk & m1 & m2)[0]

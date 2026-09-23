@@ -1,6 +1,6 @@
 """HackAPrompt -> direct positives (raw payloads).
 
-Reads the locally cached mirror (scripts/download_hf.py). The mirror collapses
+Reads the locally cached mirror (scripts/data/download_hf.py). The mirror collapses
 each playground submission into a single ``text`` field where the attacker's
 injection follows the app framing, separated by ``----------`` rules. We extract
 the injected segment and classify override vs system-prompt-extraction.

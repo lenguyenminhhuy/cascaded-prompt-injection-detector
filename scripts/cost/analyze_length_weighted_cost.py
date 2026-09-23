@@ -26,7 +26,7 @@ so the same request renders to different lengths for each.
 Logits only + token counts; never prints text. Payload-safe.
 
 Usage:
-    PYTHONPATH=. python scripts/analyze_length_weighted_cost.py \
+    PYTHONPATH=. python scripts/cost/analyze_length_weighted_cost.py \
         --stage1-dir results/stage1_prec/nf4/qwen2.5-1.5b \
         --stage1-name qwen2.5-1.5b --stage1-e 0.397 \
         --latency results/analysis/latency_curve_full_nf4.json \
@@ -41,7 +41,7 @@ from pathlib import Path
 import numpy as np
 from tokenizers import Tokenizer
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 import sys
 sys.path.insert(0, str(ROOT))
 from src.models.prompt_template import format_prompt, load_model_config  # noqa: E402

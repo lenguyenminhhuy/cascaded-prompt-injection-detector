@@ -1,6 +1,6 @@
 """A2 — train/eval overlap of the *injected instruction*, per channel.
 
-The near-duplicate screen (scripts/cross_eval_dedup.py) compares WHOLE strings.
+The near-duplicate screen (scripts/data/cross_eval_dedup.py) compares WHOLE strings.
 An injected example is dominated by its benign carrier (a task prompt or a
 retrieved document), so two examples that share an identical malicious payload
 but sit on different carriers score as dissimilar and survive the screen. The
@@ -27,7 +27,7 @@ Reads text (unlike the scoring diagnostics) because overlap is a property of
 the text; writes only aggregate counts and the payload vocabulary, never a
 carrier document.
 
-    PYTHONPATH=. python scripts/diag_direct_overlap.py \
+    PYTHONPATH=. python scripts/eval/diag_direct_overlap.py \
         --train data/train_proposal/train.jsonl \
         --eval data/eval_proposal/eval.jsonl \
         --out results/analysis/direct_overlap.json

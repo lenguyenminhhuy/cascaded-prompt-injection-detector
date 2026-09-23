@@ -21,7 +21,11 @@ behind the accompanying paper.
 | `src/pipeline/` | Cascade routing and the two-stage decision flow |
 | `src/calibration/` | Threshold selection and temperature scaling |
 | `src/evaluation/` | Metrics, cost model, latency profiling |
-| `scripts/` | One entry point per experiment |
+| `scripts/data/` | Download sources, build, dedupe and freeze the splits |
+| `scripts/train/` | Fine-tune Stage 1 and Stage 2, calibrate, dump logits |
+| `scripts/eval/` | Detection, routing and robustness results |
+| `scripts/cost/` | Latency measurement and the cost model |
+| `scripts/figures/` | Figures in the paper |
 | `configs/` | Model, training, and experiment configuration |
 | `tests/` | Unit tests |
 | `datasheet.md` | Description of the benchmark and its sources |
@@ -45,8 +49,8 @@ Key dependencies: `torch>=2.1`, `transformers>=4.40`, `peft>=0.11`,
 The evaluation benchmark and the development corpus are assembled from publicly
 available datasets. Each source keeps the licence of its original provider, so
 the assembled splits are not redistributed here. `datasheet.md` lists every
-source and how the splits are built; `scripts/download_data.sh` and
-`scripts/build_dataset.py` rebuild them.
+source and how the splits are built; `scripts/data/download_data.sh` and
+`scripts/data/build_dataset.py` rebuild them.
 
 ## Quick start
 
@@ -55,8 +59,8 @@ make setup        # install and verify the environment
 make data         # download sources and build the splits
 make train-all    # fine-tune the Stage-1 candidates and Stage-2
 make calibrate    # fit and freeze the routing threshold on the calibration split
-make cascade      # run the end-to-end cascade on the evaluation benchmark
-make evaluate     # write the metrics used in the paper
+make eval         # run the end-to-end cascade and write the paper metrics
+make figures      # draw the figures
 ```
 
 `make all` runs the full sequence. See `REPRODUCE.md` for per-table commands.

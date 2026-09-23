@@ -4,7 +4,7 @@
 Every chart is regenerated from the frozen per-sample score files, through the
 SAME code paths that produced the reported numbers
 (``src.evaluation.metrics.detection_rate_at_fpr`` and
-``scripts.eval_cascade._cascade_point``), so a figure cannot drift from the
+``scripts.eval.eval_cascade._cascade_point``), so a figure cannot drift from the
 tables in the write-up.
 
 PAYLOAD HYGIENE (CLAUDE.md): reads only ``id`` / ``label`` / ``channel`` and
@@ -13,9 +13,9 @@ Input text is never stored, printed or plotted.
 
 Usage
 -----
-    PYTHONPATH=. python scripts/make_figures.py                     # all figs, both widths
-    PYTHONPATH=. python scripts/make_figures.py --only roc,pr
-    PYTHONPATH=. python scripts/make_figures.py --width double --formats pdf
+    PYTHONPATH=. python scripts/figures/make_figures.py                     # all figs, both widths
+    PYTHONPATH=. python scripts/figures/make_figures.py --only roc,pr
+    PYTHONPATH=. python scripts/figures/make_figures.py --width double --formats pdf
 
 Writes ``results/figures/<name>_<width>.{pdf,png}`` and
 ``results/figures/figure_data.json`` (every plotted number, for LaTeX tables,
@@ -46,12 +46,12 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 from sklearn.metrics import average_precision_score, precision_recall_curve, roc_auc_score, roc_curve  # noqa: E402
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 for _p in (ROOT, ROOT / "src"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-from scripts.eval_cascade import _cascade_point, _read_labels, _read_logits  # noqa: E402
+from scripts.eval.eval_cascade import _cascade_point, _read_labels, _read_logits  # noqa: E402
 from src.evaluation.metrics import detection_rate_at_fpr, ece  # noqa: E402
 
 FPR_TARGET = 0.01
@@ -203,7 +203,7 @@ def _cascade_block(doc: dict, e_by_model: dict, tokens: int = 512) -> dict:
     """{model: {k1_ms, k2_ms, e, k1_over_k2, breakeven_e, reduction_at_e, ...}} at one length.
 
     Accepts either latency schema: the original files carry this block precomputed at 512
-    tokens; scripts/benchmark_latency_curve.py records a full profile instead, from which
+    tokens; scripts/cost/benchmark_latency_curve.py records a full profile instead, from which
     the same quantities are derived here. Deriving them keeps e out of the latency file,
     so a curve cannot silently pair one regime's latencies with another regime's routing.
     """
@@ -791,7 +791,7 @@ def main() -> int:
         "fpr_target": FPR_TARGET,
         "n": int(len(D["y"])), "n_attacks": int((D["y"] == 1).sum()), "n_benign": int((D["y"] == 0).sum()),
         "cascade_summaries": {k: p for k, (_, p) in CASCADES.items()},
-        "metric_code": "src.evaluation.metrics.detection_rate_at_fpr / scripts.eval_cascade._cascade_point",
+        "metric_code": "src.evaluation.metrics.detection_rate_at_fpr / scripts.eval.eval_cascade._cascade_point",
     }
     (args.out / "figure_data.json").write_text(json.dumps(meta, indent=2, default=float))
     print(f"  wrote {_rel(args.out / 'figure_data.json')}")

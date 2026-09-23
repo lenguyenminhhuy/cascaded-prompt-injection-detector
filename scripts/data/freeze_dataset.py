@@ -6,8 +6,8 @@ configured. Without W&B (not installed, or no WANDB_API_KEY) it falls back to a
 local freeze so the build stays reproducible offline.
 
 Usage:
-  python scripts/freeze_dataset.py --version v1
-  WANDB_API_KEY=... python scripts/freeze_dataset.py --version v1   # logs artifact
+  python scripts/data/freeze_dataset.py --version v1
+  WANDB_API_KEY=... python scripts/data/freeze_dataset.py --version v1   # logs artifact
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ import json
 import os
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data"
 SPLIT_NAMES = ["train", "cal", "test_in_dist", "test_cross_channel", "test_cross_domain"]
 ARTIFACT_FILES = [

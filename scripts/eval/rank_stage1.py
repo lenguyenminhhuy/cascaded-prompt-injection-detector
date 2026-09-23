@@ -8,7 +8,7 @@ it, not the saturated val AUROC, is what actually discriminates candidates.
 AUROC is used over accuracy@0.5 because the shifted splits are badly
 miscalibrated (accuracy can look poor while ranking/AUROC is strong).
 
-    PYTHONPATH=. python scripts/rank_stage1.py --results-dir results_stage1/stage1
+    PYTHONPATH=. python scripts/eval/rank_stage1.py --results-dir results_stage1/stage1
 
 Splits are auto-mapped by logit-file stem; override paths with --split-map if
 your layout differs.
@@ -20,11 +20,11 @@ import argparse
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.score_stage1_logits import compute_metrics, load_rows  # noqa: E402
+from scripts.eval.score_stage1_logits import compute_metrics, load_rows  # noqa: E402
 
 # logit-file stem -> split jsonl providing the labels
 DEFAULT_SPLIT_MAP = {

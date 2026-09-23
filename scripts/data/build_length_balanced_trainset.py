@@ -12,7 +12,7 @@ PAYLOAD HYGIENE: prints counts/lengths only. Never prints `input`.
 """
 import json, random
 from pathlib import Path
-R = Path.home() / "cascade-pid"
+R = Path(__file__).resolve().parents[2]
 SEED = 3131
 N = 12000
 TARGET_LONG_SHARE = 0.1903

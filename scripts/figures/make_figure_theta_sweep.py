@@ -14,10 +14,10 @@ The reference point at (0, DR of M2-on-every-input) is "no cascade at all".
 Anything above its horizontal line detects more than the strong stage alone.
 
 Reads results/analysis/theta_safe_sweep.json only (produced by
-scripts/sweep_theta_safe.py). No logits, no GPU, no dataset text.
+scripts/eval/sweep_theta_safe.py). No logits, no GPU, no dataset text.
 
 Usage:
-    python scripts/make_figure_theta_sweep.py --out results/figures/thesis
+    python scripts/figures/make_figure_theta_sweep.py --out results/figures/thesis
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ mpl.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 INK, INK_2, INK_MUTED = "#0b0b0b", "#52514e", "#8a8880"
 BLUE, ORANGE, GREEN, RED = "#2a78d6", "#eb6834", "#1baf7a", "#e34948"
 SWEEP = "results/analysis/theta_safe_sweep.json"

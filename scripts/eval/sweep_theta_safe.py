@@ -5,12 +5,12 @@ report the escalation rate e (cost axis), end-to-end DR/FPR at a fixed FPR budge
 the attacks Stage 1 auto-passes (leaked -- Stage 2 never sees them), per-channel
 recall, and the latency reduction vs Stage-2-on-every-input.
 
-Reuses scripts.eval_cascade._cascade_point so this table cannot drift from
+Reuses scripts.eval.eval_cascade._cascade_point so this table cannot drift from
 make_figures.py / eval_cascade.py. Payload-safe: reads labels, channel, and
 logit scores only -- never input text.
 
-    PYTHONPATH=. python scripts/sweep_theta_safe.py
-    PYTHONPATH=. python scripts/sweep_theta_safe.py --log-grid --n-grid 40
+    PYTHONPATH=. python scripts/eval/sweep_theta_safe.py
+    PYTHONPATH=. python scripts/eval/sweep_theta_safe.py --log-grid --n-grid 40
 """
 
 from __future__ import annotations
@@ -22,11 +22,11 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.eval_cascade import _cascade_point, _select_theta_safe_on_cal  # noqa: E402
+from scripts.eval.eval_cascade import _cascade_point, _select_theta_safe_on_cal  # noqa: E402
 from src.evaluation.metrics import detection_rate_at_fpr  # noqa: E402
 
 CHANNELS = ("direct", "document", "tool")
@@ -56,7 +56,7 @@ def _k1k2(doc: dict, tokens: int) -> dict:
     """{stage1_name: {k1_ms, k2_ms}} at one request length, from either curve schema.
 
     The original curves carry a flat ``cascade_k1k2[model] = {k1_ms, k2_ms}`` fixed at
-    512 tokens; scripts/benchmark_latency_curve.py nests one entry per measured length.
+    512 tokens; scripts/cost/benchmark_latency_curve.py nests one entry per measured length.
     Both are read here so a sweep can be re-run against either without editing the paper's
     numbers by hand.
     """

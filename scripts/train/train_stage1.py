@@ -23,9 +23,9 @@ Outputs under ``results/stage1/<name>/`` (E2 convention):
 PAYLOAD HYGIENE (CLAUDE.md): reads data/ but never prints row text — only
 counts, losses, paths.
 
-    python scripts/train_stage1.py --config configs/models/tiny-test.yaml --dry-run
-    python scripts/train_stage1.py --config configs/models/qwen2.5-1.5b.yaml
-    python scripts/train_stage1.py --config configs/models/mistral-7b-v0.1.yaml \
+    python scripts/train/train_stage1.py --config configs/models/tiny-test.yaml --dry-run
+    python scripts/train/train_stage1.py --config configs/models/qwen2.5-1.5b.yaml
+    python scripts/train/train_stage1.py --config configs/models/mistral-7b-v0.1.yaml \
         --train-file data/train_proposal/train_stage2.jsonl \
         --output-dir results/stage2/mistral-7b-v0.1
 """
@@ -37,7 +37,7 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 

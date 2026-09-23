@@ -8,7 +8,7 @@ Selection rule: primary val DR@1%FPR; tie-break pre-calibration ECE.
 Reuses the tested load_rows + compute_metrics, so llama/qwen reproduce their
 published rows exactly and Granite slots in on the identical code path.
 
-    PYTHONPATH=. python scripts/fill_stage1_selection.py \
+    PYTHONPATH=. python scripts/eval/fill_stage1_selection.py \
         --results-dir results_stage1/stage1 \
         --out results/metrics/stage1_selection.json
 """
@@ -20,11 +20,11 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.score_stage1_logits import compute_metrics, load_rows  # noqa: E402
+from scripts.eval.score_stage1_logits import compute_metrics, load_rows  # noqa: E402
 
 PARAMS_B = {"llama3.2-1b": 1.24, "qwen2.5-1.5b": 1.54, "granite-guardian-2b": 2.53}
 SPLITS = {"val": ROOT / "data/train_proposal/val.jsonl",

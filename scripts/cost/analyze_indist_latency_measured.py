@@ -1,7 +1,7 @@
 """Compose measured cascade cost on the validation split from per-row timings.
 
 Inputs: results/analysis/indist_latency/val_<model>_nf4.jsonl written by
-scripts/measure_latency_indist.py on the A10G (one file per model: the Stage-2
+scripts/cost/measure_latency_indist.py on the A10G (one file per model: the Stage-2
 M2 and each NF4 Stage-1 candidate), plus the stored NF4 Stage-1 val logits used
 for Table tab:indist so the routing decisions are exactly the reported ones.
 
@@ -15,7 +15,7 @@ For each Stage-1 candidate at the frozen theta_safe:
   * pipeline identity check: measured p_safe vs stored p_safe; routing agreement
 
 No GPU, no text. Run from experiments/cascade-pid/:
-    PYTHONPATH=. python scripts/analyze_indist_latency_measured.py
+    PYTHONPATH=. python scripts/cost/analyze_indist_latency_measured.py
 """
 from __future__ import annotations
 
@@ -26,13 +26,13 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 for _p in (ROOT, ROOT / "src"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-from scripts.eval_cascade import _read_logits                                       # noqa: E402
-from scripts.eval_cascade_indist import (STAGE1, STAGE2, STAGE2_DIR, THETA_FROZEN,   # noqa: E402
+from scripts.eval.eval_cascade import _read_logits                                       # noqa: E402
+from scripts.eval.eval_cascade_indist import (STAGE1, STAGE2, STAGE2_DIR, THETA_FROZEN,   # noqa: E402
                                          OOD_BENIGN_SHARE, _lat, _weights)
 
 IN_DIR = "results/analysis/indist_latency"

@@ -9,7 +9,7 @@ per-row {logp_<label>, p_safe} format that score_stage1_logits.py reads.
 PAYLOAD HYGIENE (CLAUDE.md): reads split text only to feed the model; never
 prints it. Emits only counts and paths.
 
-    PYTHONPATH=. python scripts/score_split.py \
+    PYTHONPATH=. python scripts/train/score_split.py \
         --config configs/models/qwen2.5-1.5b.yaml \
         --adapter results/stage1/qwen2.5-1.5b/adapter \
         --output-dir results/stage1/qwen2.5-1.5b \
@@ -25,7 +25,7 @@ import argparse
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 

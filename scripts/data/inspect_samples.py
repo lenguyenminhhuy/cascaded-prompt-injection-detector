@@ -7,10 +7,10 @@ payloads ever reaching a terminal, notebook output, or assistant context
 filters; see "Dataset payload hygiene for agents" in CLAUDE.md).
 
 Usage:
-    PYTHONPATH=. python scripts/inspect_samples.py data/splits/train.jsonl
-    PYTHONPATH=. python scripts/inspect_samples.py data/eval_proposal/eval.jsonl \
+    PYTHONPATH=. python scripts/data/inspect_samples.py data/splits/train.jsonl
+    PYTHONPATH=. python scripts/data/inspect_samples.py data/eval_proposal/eval.jsonl \
         --label injected --channel document_embedded --limit 20
-    PYTHONPATH=. python scripts/inspect_samples.py data/splits/*.jsonl --summary
+    PYTHONPATH=. python scripts/data/inspect_samples.py data/splits/*.jsonl --summary
 """
 
 from __future__ import annotations

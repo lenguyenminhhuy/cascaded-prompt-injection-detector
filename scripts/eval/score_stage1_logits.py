@@ -13,7 +13,7 @@ the E2 selection metrics using the repo's own src/evaluation/metrics.py:
 PAYLOAD HYGIENE (CLAUDE.md): reads only label/source/channel from the split —
 never the 'input'/'text' field. Prints only aggregates: counts and metrics.
 
-    PYTHONPATH=. python scripts/score_stage1_logits.py \
+    PYTHONPATH=. python scripts/eval/score_stage1_logits.py \
         --logits results/stage1/qwen2.5-1.5b/val_logits.jsonl \
         --split  data/train_proposal/val.jsonl
 """
@@ -27,7 +27,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 # metrics.py does `from evaluation.per_channel import ...`, so src/ must be on path
 for p in (ROOT, ROOT / "src"):
     if str(p) not in sys.path:

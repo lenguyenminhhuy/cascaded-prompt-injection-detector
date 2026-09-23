@@ -9,7 +9,7 @@ from pathlib import Path
 
 from datasets import load_dataset
 
-OUT = Path(__file__).resolve().parents[1] / "data" / "raw" / "hf"
+OUT = Path(__file__).resolve().parents[2] / "data" / "raw" / "hf"
 OUT.mkdir(parents=True, exist_ok=True)
 
 CAP = 20000  # generous cap; loaders sample down further

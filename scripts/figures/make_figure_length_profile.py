@@ -12,7 +12,7 @@ template used at inference, so the lengths are the ones the cost model prices.
 PAYLOAD HYGIENE (CLAUDE.md): reads label and rendered token count only. No input
 text is stored, printed or plotted.
 
-    PYTHONPATH=. python scripts/make_figure_length_profile.py
+    PYTHONPATH=. python scripts/figures/make_figure_length_profile.py
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 for _p in (ROOT, ROOT / "src"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
