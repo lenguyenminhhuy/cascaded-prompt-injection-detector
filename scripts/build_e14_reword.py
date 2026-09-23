@@ -160,9 +160,9 @@ def main() -> int:
             "channel": "direct", "source": r.get("source", "struq_synthetic"),
             "payload_class": payload,
         }
-        # Arm A — untouched.
+        # Original — payload untouched.
         out_rows.append({**base, "arm": "A_original", "variant": -1, "text": r["text"]})
-        # Arm B — reworded payload; variants assigned round-robin within the
+        # Reworded — unseen payload phrasing; variants assigned round-robin within the
         # payload class so each variant carries a third of that class's rows.
         vi = per_payload[payload] % 3
         out_rows.append({**base, "arm": "B_reword", "variant": vi,

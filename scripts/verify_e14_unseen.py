@@ -1,6 +1,6 @@
-"""E14 — verify that arm B's rewordings really are unseen wording.
+"""E14 — verify that the reworded payloads really are unseen wording.
 
-The manipulation is only meaningful if arm B's payloads are absent from the
+The manipulation is only meaningful if the reworded payloads are absent from the
 detectors' training text. Two checks, both reusing the measures already
 reported in scripts/diag_direct_overlap.py so the numbers are comparable with
 Table "Train/eval overlap of the injected instruction, per channel":

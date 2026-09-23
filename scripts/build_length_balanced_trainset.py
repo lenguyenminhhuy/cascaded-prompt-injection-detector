@@ -1,4 +1,6 @@
-"""Arm B: isolate the benign LENGTH distribution at fixed volume/label-balance.
+"""Build the length-balanced Stage-1 training split.
+
+Isolates the benign LENGTH distribution at fixed volume and label balance.
 
 Start from train.jsonl's first 12,000 rows (byte-identical to the existing
 Stage-1 run) and substitute a random subset of benign rows with LONG benign
@@ -28,7 +30,7 @@ donors = rng.sample(aug_long, n_need)
 for pos, don in zip(swap_at, donors):
     base[pos] = don
 
-out = R/"data/train_proposal/train_stage1_armB.jsonl"
+out = R/"data/train_proposal/train_stage1_length_balanced.jsonl"
 with open(out, "w") as f:
     for d in base:
         f.write(json.dumps(d) + "\n")
@@ -42,6 +44,6 @@ def prof(rows, tag):
              100*sum(1 for x in lb if x >= 1000)/len(lb)))
 
 orig = [json.loads(l) for i, l in enumerate(open(R/"data/train_proposal/train.jsonl")) if i < N]
-prof(orig, "arm A"); prof(base, "arm B")
+prof(orig, "original"); prof(base, "length-balanced")
 print("swapped %d benign rows; donor pool %d long benign" % (n_need, len(aug_long)))
 print("wrote", out)
