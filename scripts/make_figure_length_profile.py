@@ -36,7 +36,7 @@ INK, INK_2, GRID, SURFACE = "#0b0b0b", "#52514e", "#d8d7d2", "#ffffff"
 BLUE, ORANGE = "#2a78d6", "#eb6834"
 SPLIT_COLOR = {"in_dist": BLUE, "ood": ORANGE}
 
-MODEL, TOK = "llama3.2-1b", "results_kaggle/stage1/llama3.2-1b/adapter/tokenizer.json"
+MODEL, TOK = "llama3.2-1b", "results_stage1/stage1/llama3.2-1b/adapter/tokenizer.json"
 EVAL, VAL = "data/eval_proposal/eval.jsonl", "data/train_proposal/val.jsonl"
 EDGES = [77, 128, 192, 256, 384, 512, 1024, 2048]
 LABELS = ["floor\n71--77", "128", "192", "256", "384", "512", "1024", "2048", ">2048"]

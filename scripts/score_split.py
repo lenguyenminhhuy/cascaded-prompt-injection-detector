@@ -1,7 +1,7 @@
 """Dump Stage-1 label logits for arbitrary split(s) from a SAVED adapter.
 
 Decouples logit-dumping from training (train_stage1.py welds them together,
-which is what overran the 12 h Kaggle wall). Given an already-trained adapter,
+which overran the training wall-clock limit). Given an already-trained adapter,
 this scores any split(s) — val, cal, test_in_dist, test_cross_channel,
 test_cross_domain — in a short GPU inference pass (minutes), writing the same
 per-row {logp_<label>, p_safe} format that score_stage1_logits.py reads.

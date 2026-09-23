@@ -37,9 +37,9 @@ OOD_N_BENIGN, OOD_N = 18634, 25747
 OOD_BENIGN_SHARE = OOD_N_BENIGN / OOD_N
 STAGE2, STAGE2_DIR = "mistral-7b-v0.1", "results/stage2/mistral-7b-v0.1"
 STAGE1 = {
-    "qwen2.5-1.5b":        dict(dir="results_kaggle/stage1/qwen2.5-1.5b", lat="results/analysis/latency_curve_full_nf4.json",  cal_theta=3.16e-4),
-    "llama3.2-1b":         dict(dir="results_kaggle/stage1/llama3.2-1b",  lat="results/analysis/latency_curve_full_nf4.json",  cal_theta=1e-4),
-    "granite-guardian-2b": dict(dir="results_kaggle/stage1/granite-guardian-2b", lat="results/analysis/latency_curve_full3_nf4.json", cal_theta=None),
+    "qwen2.5-1.5b":        dict(dir="results_stage1/stage1/qwen2.5-1.5b", lat="results/analysis/latency_curve_full_nf4.json",  cal_theta=3.16e-4),
+    "llama3.2-1b":         dict(dir="results_stage1/stage1/llama3.2-1b",  lat="results/analysis/latency_curve_full_nf4.json",  cal_theta=1e-4),
+    "granite-guardian-2b": dict(dir="results_stage1/stage1/granite-guardian-2b", lat="results/analysis/latency_curve_full3_nf4.json", cal_theta=None),
 }
 VAL, CAL, EVAL = "data/train_proposal/val.jsonl", "data/train_proposal/cal.jsonl", "data/eval_proposal/eval.jsonl"
 

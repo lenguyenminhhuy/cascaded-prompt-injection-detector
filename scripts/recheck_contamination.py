@@ -69,8 +69,8 @@ def parse_args():
     p.add_argument("--stage2-dir", default="results/stage2/mistral-7b-v0.1")
     p.add_argument("--stage2-name", default="mistral-7b (M2)")
     p.add_argument("--stage1", nargs="+",
-                   default=["llama3.2-1b=results_kaggle/stage1/llama3.2-1b",
-                            "qwen2.5-1.5b=results_kaggle/stage1/qwen2.5-1.5b"],
+                   default=["llama3.2-1b=results_stage1/stage1/llama3.2-1b",
+                            "qwen2.5-1.5b=results_stage1/stage1/qwen2.5-1.5b"],
                    help="name=dir pairs; each dir holds eval_logits.jsonl")
     p.add_argument("--theta-safe", type=float, default=0.005)
     p.add_argument("--eval-split", default="data/eval_proposal/eval.jsonl")

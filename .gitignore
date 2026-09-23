@@ -42,7 +42,7 @@ wandb/
 
 # Local experiment scratch and cloud-run mirrors
 scratchpad/
-results_kaggle/
+results_stage1/
 
 # Packaging artifacts for cloud runs
 *.zip

@@ -8,7 +8,7 @@ it, not the saturated val AUROC, is what actually discriminates candidates.
 AUROC is used over accuracy@0.5 because the shifted splits are badly
 miscalibrated (accuracy can look poor while ranking/AUROC is strong).
 
-    PYTHONPATH=. python scripts/rank_stage1.py --results-dir results_kaggle/stage1
+    PYTHONPATH=. python scripts/rank_stage1.py --results-dir results_stage1/stage1
 
 Splits are auto-mapped by logit-file stem; override paths with --split-map if
 your layout differs.
@@ -43,7 +43,7 @@ def _fmt(x) -> str:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Rank Stage-1 candidates (no GPU)")
-    p.add_argument("--results-dir", type=Path, default=ROOT / "results_kaggle/stage1")
+    p.add_argument("--results-dir", type=Path, default=ROOT / "results_stage1/stage1")
     p.add_argument("--rank-split", default=RANK_SPLIT,
                    help=f"split whose AUROC (ECE tie-break) ranks candidates "
                         f"(default {RANK_SPLIT})")
