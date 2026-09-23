@@ -1,6 +1,6 @@
 """E4 deployment-point selection — pick one fixed (theta_safe, theta_unsafe).
 
-The cost/escalation *frontier* (scripts/sweep_thresholds.py) sweeps the whole
+The cost/escalation *frontier* (scripts/eval/sweep_thresholds.py) sweeps the whole
 grid; this module instead picks the SINGLE operating point a deployed router
 would freeze — the min-escalation point on the calibration split that leaks no
 attacks and holds the false-positive rate under a target. That fixed point is

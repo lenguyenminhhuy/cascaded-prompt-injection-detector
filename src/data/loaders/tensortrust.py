@@ -1,6 +1,6 @@
 """TensorTrust -> direct positives (raw payloads).
 
-Reads the locally cached benchmark JSONL files (scripts/download_hf.py):
+Reads the locally cached benchmark JSONL files (scripts/data/download_hf.py):
   - extraction-robustness: attacks that try to reveal the system prompt
     -> system_prompt_extraction
   - hijacking-robustness: attacks that try to override the bot's behavior
