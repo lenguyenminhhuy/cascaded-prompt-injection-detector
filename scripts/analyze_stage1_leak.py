@@ -20,7 +20,7 @@ PAYLOAD HYGIENE (CLAUDE.md): reads only label + source/channel metadata + logit
 scores; never input text. Row-order join, same as eval_cascade.py.
 
     PYTHONPATH=. python scripts/analyze_stage1_leak.py \
-        --stage1-dir results_kaggle/stage1/qwen2.5-1.5b \
+        --stage1-dir results_stage1/stage1/qwen2.5-1.5b \
         --stage2-dir results/stage2/mistral-7b-v0.1 \
         --stage1-name qwen2.5-1.5b --out-dir results/analysis/cascade_qwen2
 """

@@ -38,7 +38,7 @@ alignment to the split is by row order, externally corroborated by per-source la
 purity in scripts/score_stage1_logits.py (e.g. alpaca pos=0, bipia neg=0).
 
     PYTHONPATH=. python scripts/eval_cascade.py \
-        --stage1-dir results_kaggle/stage1/llama3.2-1b \
+        --stage1-dir results_stage1/stage1/llama3.2-1b \
         --stage2-dir results/stage2/mistral-7b-v0.1 \
         --stage1-name llama3.2-1b --stage2-name mistral-7b \
         --out-dir results/analysis/cascade_llama

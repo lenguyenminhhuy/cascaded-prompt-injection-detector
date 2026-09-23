@@ -47,7 +47,7 @@ for prec in $PRECISIONS; do
   for m in $MODELS; do
     OUT="results/stage1_prec/$prec/$m"
     ADAPTER=""
-    for cand in "results/stage1/$m/adapter" "results_kaggle/stage1/$m/adapter"; do
+    for cand in "results/stage1/$m/adapter" "results_stage1/stage1/$m/adapter"; do
       [ -d "$cand" ] && { ADAPTER="$cand"; break; }
     done
     [ -n "$ADAPTER" ] || { echo "SKIP $prec/$m: no adapter found"; continue; }

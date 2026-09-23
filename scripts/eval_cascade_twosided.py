@@ -28,7 +28,7 @@ Honesty guards (mirror eval_cascade.py):
 PAYLOAD HYGIENE (CLAUDE.md): reads only label + logit scores; never input text.
 
     PYTHONPATH=. python scripts/eval_cascade_twosided.py \
-        --stage1-dir results_kaggle/stage1/qwen2.5-1.5b \
+        --stage1-dir results_stage1/stage1/qwen2.5-1.5b \
         --stage2-dir results/stage2/mistral-7b-v0.1 \
         --stage1-name qwen2.5-1.5b --stage2-name mistral-7b \
         --out-dir results/analysis/cascade_qwen2

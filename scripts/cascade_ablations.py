@@ -12,7 +12,7 @@ PAYLOAD HYGIENE (CLAUDE.md): reads only label/source/channel + logit scores; nev
 input text. Emits only counts / rates / thresholds.
 
     PYTHONPATH=. python scripts/cascade_ablations.py \
-        --stage1-dir results_kaggle/stage1/qwen2.5-1.5b --stage1-name qwen2.5-1.5b \
+        --stage1-dir results_stage1/stage1/qwen2.5-1.5b --stage1-name qwen2.5-1.5b \
         --stage2-dir results/stage2/mistral-7b-v0.1 --stage2-name mistral-7b \
         --theta-safe 0.005 --out-dir results/analysis/cascade_qwen2
 """

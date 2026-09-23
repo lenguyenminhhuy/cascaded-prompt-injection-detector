@@ -30,8 +30,8 @@ from scripts.eval_cascade import _cascade_point, _select_theta_safe_on_cal  # no
 from src.evaluation.metrics import detection_rate_at_fpr  # noqa: E402
 
 CHANNELS = ("direct", "document", "tool")
-STAGE1 = {"Qwen-1.5B": ("results_kaggle/stage1/qwen2.5-1.5b", "qwen2.5-1.5b"),
-          "Llama-1B": ("results_kaggle/stage1/llama3.2-1b", "llama3.2-1b")}
+STAGE1 = {"Qwen-1.5B": ("results_stage1/stage1/qwen2.5-1.5b", "qwen2.5-1.5b"),
+          "Llama-1B": ("results_stage1/stage1/llama3.2-1b", "llama3.2-1b")}
 STAGE2 = "results/stage2/mistral-7b-v0.1"
 DEFAULT_GRID = [1e-5, 3.16e-5, 1e-4, 3.16e-4, 1e-3, 3.16e-3, 5e-3,
                 1e-2, 3.16e-2, 1e-1, 3.16e-1, 1.0]

@@ -9,7 +9,7 @@ Reuses the tested load_rows + compute_metrics, so llama/qwen reproduce their
 published rows exactly and Granite slots in on the identical code path.
 
     PYTHONPATH=. python scripts/fill_stage1_selection.py \
-        --results-dir results_kaggle/stage1 \
+        --results-dir results_stage1/stage1 \
         --out results/metrics/stage1_selection.json
 """
 
@@ -42,7 +42,7 @@ def _metrics(cand_dir: Path, split_stem: str, split_path: Path):
 
 def parse_args():
     p = argparse.ArgumentParser(description="Stage-1 selection + single-stage rows")
-    p.add_argument("--results-dir", type=Path, default=ROOT / "results_kaggle/stage1")
+    p.add_argument("--results-dir", type=Path, default=ROOT / "results_stage1/stage1")
     p.add_argument("--out", type=Path, default=ROOT / "results/metrics/stage1_selection.json")
     return p.parse_args()
 

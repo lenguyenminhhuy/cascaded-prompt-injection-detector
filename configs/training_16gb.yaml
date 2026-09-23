@@ -1,10 +1,10 @@
-# Kaggle 16 GB (T4 / P100) variant of configs/training.yaml.
+# 16 GB GPU variant of configs/training.yaml.
 #
 # Why this exists: configs/training.yaml uses per_device_train_batch_size: 8 at
 # max_seq_length: 2048. train_stage1.py sets loss_type="nll" (a TRL/transformers-5
 # workaround), which fully materializes the [batch, seq, vocab] logits tensor every
 # step. At batch 8 x 2048 x ~150k vocab that transient is ~5 GB (bf16) / ~10 GB after
-# the fp32 CE upcast — it OOMs a 16 GB Kaggle GPU regardless of the (tiny, 4-bit) base
+# the fp32 CE upcast — it OOMs a 16 GB GPU regardless of the (tiny, 4-bit) base
 # weights. That config was tuned for a 24 GB+ Colab GPU.
 #
 # Sizing is driven by the actual train.jsonl length distribution (payload-safe check):

@@ -165,9 +165,9 @@ def barlabel(ax, rects, fmt="{:.2f}", dy=0.012, na_mask=None):
 # ---------------------------------------------------------------------------
 # data
 # ---------------------------------------------------------------------------
-STAGE1_DIRS = {"llama": "results_kaggle/stage1/llama3.2-1b",
-               "qwen": "results_kaggle/stage1/qwen2.5-1.5b",
-               "granite": "results_kaggle/stage1/granite-guardian-2b"}
+STAGE1_DIRS = {"llama": "results_stage1/stage1/llama3.2-1b",
+               "qwen": "results_stage1/stage1/qwen2.5-1.5b",
+               "granite": "results_stage1/stage1/granite-guardian-2b"}
 STAGE2_DIR = "results/stage2/mistral-7b-v0.1"
 EVAL_SPLIT = "data/eval_proposal/eval.jsonl"
 CAL_SPLIT = "data/train_proposal/cal.jsonl"

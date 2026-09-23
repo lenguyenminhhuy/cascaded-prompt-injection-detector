@@ -41,8 +41,8 @@ Usage (on the GPU box, from experiments/cascade-pid/):
     PYTHONPATH=. python scripts/benchmark_latency_curve.py \
         --regime nf4 \
         --targets 128,192,256,384,512 \
-        --stage1 llama3.2-1b:results_kaggle/stage1/llama3.2-1b/adapter \
-        --stage1 qwen2.5-1.5b:results_kaggle/stage1/qwen2.5-1.5b/adapter \
+        --stage1 llama3.2-1b:results_stage1/stage1/llama3.2-1b/adapter \
+        --stage1 qwen2.5-1.5b:results_stage1/stage1/qwen2.5-1.5b/adapter \
         --stage2 mistral-7b-v0.1 \
         --out results/analysis/latency_curve_midgrid_nf4.json
 
@@ -189,7 +189,7 @@ def main() -> None:
     p.add_argument("--regime", choices=("nf4", "bf16"), required=True,
                    help="Stage-1 quantization. Stage 2 is NF4 in both regimes.")
     p.add_argument("--stage1", action="append", required=True, metavar="NAME[:ADAPTER]",
-                   help="repeatable, e.g. llama3.2-1b:results_kaggle/stage1/llama3.2-1b/adapter")
+                   help="repeatable, e.g. llama3.2-1b:results_stage1/stage1/llama3.2-1b/adapter")
     p.add_argument("--stage2", default="mistral-7b-v0.1", metavar="NAME[:ADAPTER]")
     p.add_argument("--targets", default=",".join(map(str, DEFAULT_TARGETS)))
     p.add_argument("--reps", type=int, default=DEFAULT_REPS)
