@@ -46,3 +46,11 @@ results_kaggle/
 
 # Packaging artifacts for cloud runs
 *.zip
+
+# Internal working notes and agent tooling — local only, not part of the release
+_internal/
+notebooks/
+AGENTS.md
+CLAUDE.md
+BUDGET_REQUEST.md
+EXPERIMENTS.md
