@@ -30,7 +30,7 @@ make calibrate     # fit and freeze theta_safe on the calibration split
 | In-distribution cost and latency | Length-weighted cost, latency quantiles | `python scripts/measure_latency_indist.py` then `python scripts/analyze_indist_latency_measured.py` |
 | Cascade detection by channel | Per-channel detection and auto-passes | `python scripts/eval_cascade.py` (per-channel breakdown is in the summary output) |
 | Evaluation AUROC by input length | Band-wise ranking | `python scripts/analyze_length_weighted_cost.py` |
-| Effect of adding long benign examples | Arm A against arm B | see **Known gap** below |
+| Effect of adding long benign examples | Original against length-balanced training data | see **Known gap** below |
 | Injected-instruction overlap by channel | Tail 5-gram coverage | `python scripts/diag_direct_overlap.py` and `python scripts/diag_seen_vs_unseen.py` |
 | Detection after changing only the payload | Reword manipulation | `python scripts/build_e14_reword.py`, `python scripts/verify_e14_unseen.py`, `python scripts/analyze_e14.py` |
 | Fine-tuning configurations | Training runs | `python scripts/train_stage1.py --config configs/models/<model>.yaml` |
@@ -57,9 +57,11 @@ make calibrate     # fit and freeze theta_safe on the calibration split
 
 ## Known gap
 
-The benign-length ablation (arm A against arm B) is built and trained by
-`scripts/armB/build_armB.py` followed by `scripts/train_stage1.py` on the
-resulting split. The analysis step that turns those runs into the reported
+The benign-length ablation compares Stage-1 trained on the original data
+against Stage-1 trained on a length-balanced variant, in which short benign
+rows are replaced by long benign documents. The variant is built by
+`scripts/build_length_balanced_trainset.py` and trained with
+`scripts/train_stage1.py` on the resulting split. The analysis step that turns those runs into the reported
 correlation, AUROC, and band-wise detection numbers is not yet scripted in this
 repository. The trained adapters and evaluation logits are retained, so the
 analysis can be regenerated, but there is currently no single command for it.
